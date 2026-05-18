@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Lenta.ru: Новости</title>
+    <link>https://lenta.ru</link>
+    <description>Последние новости</description>
+    <item>
+      <title>Первая новость</title>
+      <link>https://lenta.ru/news/2026/05/19/news1/</link>
+      <guid>https://lenta.ru/news/2026/05/19/news1/</guid>
+      <description>Описание первой новости</description>
+      <pubDate>Mon, 19 May 2026 10:00:00 +0300</pubDate>
+    </item>
+    <item>
+      <title>Вторая новость</title>
+      <link>https://lenta.ru/news/2026/05/19/news2/</link>
+      <guid>https://lenta.ru/news/2026/05/19/news2/</guid>
+      <description>Описание второй новости</description>
+      <pubDate>Mon, 19 May 2026 11:00:00 +0300</pubDate>
+    </item>
+    <item>
+      <title>Третья новость</title>
+      <link>https://lenta.ru/news/2026/05/19/news3/</link>
+      <guid>https://lenta.ru/news/2026/05/19/news3/</guid>
+      <description>Описание третьей новости</description>
+      <pubDate>Mon, 19 May 2026 12:00:00 +0300</pubDate>
+    </item>
+  </channel>
+</rss>

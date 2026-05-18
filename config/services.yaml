@@ -33,3 +33,11 @@ services:
         arguments:
             $codeSendLimiter: '@limiter.code_send'
             $codeAttemptsLimiter: '@limiter.code_attempts'
+
+    _instanceof:
+        App\News\Source\NewsSourceFetcherInterface:
+            tags: ['app.news_fetcher']
+
+    App\News\NewsImporter:
+        arguments:
+            $fetchers: !tagged_iterator app.news_fetcher
