@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Message\SendConfirmationCodeMessage;
 use App\Repository\UserRepository;
+use App\Service\Confirmation\ConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -20,6 +23,8 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $hasher,
         EntityManagerInterface $em,
         UserRepository $users,
+        ConfirmationService $confirmationService,
+        MessageBusInterface $bus,
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
@@ -40,11 +45,18 @@ class RegistrationController extends AbstractController
             $user->setEmail($email);
             $user->setPassword($hasher->hashPassword($user, $form->get('plainPassword')->getData()));
 
+            $handle = $form->get('telegramHandle')->getData();
+            if ($handle) {
+                $user->setTelegramHandle(ltrim($handle, '@'));
+            }
+
             $em->persist($user);
             $em->flush();
 
-            $this->addFlash('success', 'Registration almost complete. Please confirm your account.');
-            return $this->redirectToRoute('app_login');
+            $code = $confirmationService->generate($user);
+            $bus->dispatch(new SendConfirmationCodeMessage($code->getId()));
+
+            return $this->redirectToRoute('app_confirm', ['id' => $user->getId()]);
         }
 
         return $this->render('registration/register.html.twig', ['form' => $form]);

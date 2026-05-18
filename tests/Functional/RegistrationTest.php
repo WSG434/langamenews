@@ -22,7 +22,9 @@ class RegistrationTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        $this->assertResponseRedirects('/login');
+        // Now redirects to confirm page, not login
+        $this->assertResponseRedirects();
+        $this->assertStringContainsString('/register/confirm/', $client->getResponse()->headers->get('Location'));
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -31,6 +33,7 @@ class RegistrationTest extends WebTestCase
         $this->assertNotNull($user);
         $this->assertNotSame('password123', $user->getPassword(), 'Password must be hashed');
         $this->assertStringStartsWith('$', $user->getPassword());
+        $this->assertFalse($user->isVerified());
     }
 
     public function testDuplicateEmailShowsError(): void
@@ -45,7 +48,9 @@ class RegistrationTest extends WebTestCase
             'registration_form[plainPassword][second]' => 'password123',
         ]);
         $client->submit($form);
-        $this->assertResponseRedirects('/login');
+
+        // Now follow to confirm page
+        $this->assertResponseRedirects();
 
         // Register again with same email
         $crawler = $client->request('GET', '/register');
@@ -56,7 +61,6 @@ class RegistrationTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        // Error flash is shown (status 200 - server-side duplicate check, not form validation)
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorExists('.flash-error');
     }
@@ -73,7 +77,6 @@ class RegistrationTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        // symfony/ux-turbo returns 422 for form validation errors
         $this->assertResponseStatusCodeSame(422);
         $this->assertSelectorTextContains('body', 'at least 8 characters');
     }

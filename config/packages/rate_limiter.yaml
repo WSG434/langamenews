@@ -1,0 +1,10 @@
+framework:
+    rate_limiter:
+        code_send:
+            policy: sliding_window
+            limit: 3
+            interval: '10 minutes'
+        code_attempts:
+            policy: fixed_window
+            limit: 5
+            interval: '10 minutes'

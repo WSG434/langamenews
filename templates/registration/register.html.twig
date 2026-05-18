@@ -13,6 +13,12 @@
     </div>
 
     <div style="margin-bottom:1rem">
+        {{ form_label(form.telegramHandle) }}<br>
+        {{ form_widget(form.telegramHandle, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
+        {{ form_errors(form.telegramHandle) }}
+    </div>
+
+    <div style="margin-bottom:1rem">
         {{ form_label(form.plainPassword.first) }}<br>
         {{ form_widget(form.plainPassword.first, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
         {{ form_errors(form.plainPassword.first) }}

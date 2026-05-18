@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirm your account{% endblock %}
+
+{% block body %}
+<h1>Confirm your account</h1>
+<p>A 6-digit confirmation code has been sent to your Telegram. Enter it below.</p>
+
+<form method="post" action="{{ path('app_confirm', {id: userId}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('confirm_' ~ userId) }}">
+    <div>
+        <label for="code">Confirmation code</label><br>
+        <input type="text" id="code" name="code" maxlength="6" inputmode="numeric" pattern="\d{6}" autofocus required>
+    </div>
+    <br>
+    <button type="submit">Confirm</button>
+</form>
+
+<br>
+<form method="post" action="{{ path('app_confirm_resend', {id: userId}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('resend_' ~ userId) }}">
+    <button type="submit">Resend code</button>
+</form>
+{% endblock %}

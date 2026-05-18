@@ -28,6 +28,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isVerified = false;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $telegramHandle = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -89,6 +92,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+        return $this;
+    }
+
+    public function getTelegramHandle(): ?string { return $this->telegramHandle; }
+
+    public function setTelegramHandle(?string $handle): static
+    {
+        $this->telegramHandle = $handle;
         return $this;
     }
 
