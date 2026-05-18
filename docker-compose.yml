@@ -1,0 +1,57 @@
+name: news-aggregator
+
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+    container_name: news-nginx
+    volumes:
+      - ".:/var/www"
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    depends_on:
+      - php-fpm
+    networks:
+      - app-net
+
+  php-fpm:
+    build:
+      context: ./docker/php/dev
+    container_name: news-php-fpm
+    working_dir: /var/www
+    volumes:
+      - ".:/var/www"
+    environment:
+      - PHP_IDE_CONFIG=serverName=news
+    depends_on:
+      - mysql
+      - rabbitmq
+    networks:
+      - app-net
+
+  mysql:
+    image: mysql:8.4
+    container_name: news-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-news}
+    volumes:
+      - "./data/mysql:/var/lib/mysql"
+      - "./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql"
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    networks:
+      - app-net
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: news-rabbitmq
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_UI_PORT:-15672}:15672"
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
