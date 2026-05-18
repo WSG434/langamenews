@@ -8,7 +8,7 @@ sh:
 	docker compose exec php-fpm sh
 
 test:
-	docker compose exec php-fpm composer test
+	docker compose exec -e XDEBUG_MODE=off php-fpm composer test
 
 migrate:
 	docker compose exec php-fpm php bin/console doctrine:migrations:migrate -n

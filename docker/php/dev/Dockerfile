@@ -1,31 +1,27 @@
-FROM composer:latest AS composer
-
 FROM php:8.5-fpm-alpine
 
-RUN apk add --no-cache \
-    linux-headers \
-    autoconf \
-    g++ \
-    make \
-    rabbitmq-c-dev \
-    icu-dev \
-    libzip-dev \
-    libxml2-dev \
-    oniguruma-dev \
-    && docker-php-ext-install \
-        pdo_mysql \
-        intl \
-        zip \
-        xml \
-        mbstring \
-        opcache \
-    && pecl install amqp xdebug \
-    && docker-php-ext-enable amqp xdebug \
-    && apk del autoconf g++ make linux-headers
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-COPY --from=composer /usr/bin/composer /usr/bin/composer
+RUN install-php-extensions \
+    pdo_mysql \
+    intl \
+    amqp \
+    opcache \
+    zip \
+    xml \
+    mbstring \
+    xdebug
 
-RUN echo '[xdebug]' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo 'xdebug.mode=develop,debug' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+RUN echo 'xdebug.mode=develop,debug' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo 'xdebug.client_host=host.docker.internal' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo 'xdebug.start_with_request=yes' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+COPY composer.json composer.lock ./
+RUN composer install --prefer-dist --no-scripts --no-autoloader
+
+COPY . .
+RUN composer dump-autoload --optimize
