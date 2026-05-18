@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register — News Aggregator{% endblock %}
+
+{% block body %}
+<h1>Register</h1>
+
+{{ form_start(form, {attr: {style: 'max-width:400px'}}) }}
+    <div style="margin-bottom:1rem">
+        {{ form_label(form.email) }}<br>
+        {{ form_widget(form.email, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
+        {{ form_errors(form.email) }}
+    </div>
+
+    <div style="margin-bottom:1rem">
+        {{ form_label(form.plainPassword.first) }}<br>
+        {{ form_widget(form.plainPassword.first, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
+        {{ form_errors(form.plainPassword.first) }}
+    </div>
+
+    <div style="margin-bottom:1rem">
+        {{ form_label(form.plainPassword.second) }}<br>
+        {{ form_widget(form.plainPassword.second, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
+        {{ form_errors(form.plainPassword.second) }}
+    </div>
+
+    {{ form_errors(form) }}
+
+    <button type="submit" style="padding:0.5rem 1.5rem">Register</button>
+{{ form_end(form) }}
+
+<p style="margin-top:1rem"><a href="{{ path('app_login') }}">Already have an account? Login</a></p>
+{% endblock %}

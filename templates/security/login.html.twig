@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login — News Aggregator{% endblock %}
+
+{% block body %}
+<h1>Login</h1>
+
+{% if error %}
+    <div class="flash flash-error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+{% endif %}
+
+<form method="post" action="{{ path('app_login') }}" style="max-width:400px">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+    <div style="margin-bottom:1rem">
+        <label for="email">Email</label><br>
+        <input id="email" type="email" name="_username" value="{{ last_username }}" required autofocus
+               style="width:100%;padding:0.5rem;box-sizing:border-box">
+    </div>
+
+    <div style="margin-bottom:1rem">
+        <label for="password">Password</label><br>
+        <input id="password" type="password" name="_password" required
+               style="width:100%;padding:0.5rem;box-sizing:border-box">
+    </div>
+
+    <button type="submit" style="padding:0.5rem 1.5rem">Login</button>
+</form>
+
+<p style="margin-top:1rem"><a href="{{ path('app_register') }}">No account? Register</a></p>
+{% endblock %}
