@@ -28,6 +28,23 @@ class NewsController extends AbstractController
         ]);
     }
 
+    #[Route('/more', name: 'app_news_more', methods: ['GET'])]
+    public function more(Request $request): JsonResponse
+    {
+        $offset = max(0, $request->query->getInt('offset', 10));
+        $items = $this->newsRepository->findLatest(20, $offset);
+
+        return $this->json(array_map(fn ($n) => [
+            'id' => $n->getId(),
+            'title' => htmlspecialchars($n->getTitle(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            'summary' => htmlspecialchars($n->getSummary() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            'publishedAt' => $n->getPublishedAt()?->format('d.m.Y H:i'),
+            'source' => $n->getSource(),
+            'url' => $n->getUrl(),
+            'imageUrl' => $n->getImageUrl(),
+        ], $items));
+    }
+
     #[Route('/search', name: 'app_news_search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
@@ -39,8 +56,10 @@ class NewsController extends AbstractController
                     'id' => $n->getId(),
                     'title' => htmlspecialchars($n->getTitle(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
                     'summary' => htmlspecialchars($n->getSummary() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                    'publishedAt' => $n->getPublishedAt()?->format('Y-m-d H:i'),
+                    'publishedAt' => $n->getPublishedAt()?->format('d.m.Y H:i'),
                     'source' => $n->getSource(),
+                    'url' => $n->getUrl(),
+                    'imageUrl' => $n->getImageUrl(),
                 ],
                 $this->newsRepository->findLatest(10)
             );
@@ -53,8 +72,10 @@ class NewsController extends AbstractController
             'id' => $row['id'],
             'title' => $this->highlighter->highlight($row['title'], $q),
             'summary' => $this->highlighter->highlight($row['summary'] ?? '', $q),
-            'publishedAt' => $row['published_at'] ? (new \DateTimeImmutable($row['published_at']))->format('Y-m-d H:i') : null,
+            'publishedAt' => $row['published_at'] ? (new \DateTimeImmutable($row['published_at']))->format('d.m.Y H:i') : null,
             'source' => $row['source'],
+            'url' => $row['url'] ?? null,
+            'imageUrl' => $row['image_url'] ?? null,
         ], $rows);
 
         return $this->json($result);

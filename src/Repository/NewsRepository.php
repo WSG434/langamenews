@@ -26,21 +26,27 @@ class NewsRepository extends ServiceEntityRepository
     public function searchFullText(string $query, int $limit = 20): array
     {
         $limit = max(1, (int) $limit);
+        // Add wildcard suffix to each word for prefix matching in BOOLEAN MODE
+        $booleanQuery = implode(' ', array_map(
+            fn (string $w) => '+' . $w . '*',
+            array_filter(array_map('trim', preg_split('/\s+/', $query) ?: []))
+        ));
+
         $sql = <<<SQL
-            SELECT id, title, summary, published_at, source,
-                   MATCH(title, summary, content) AGAINST(:q IN NATURAL LANGUAGE MODE) AS score
+            SELECT id, title, summary, url, image_url, published_at, source,
+                   MATCH(title, summary, content) AGAINST(:q IN BOOLEAN MODE) AS score
             FROM news
-            WHERE MATCH(title, summary, content) AGAINST(:q IN NATURAL LANGUAGE MODE)
+            WHERE MATCH(title, summary, content) AGAINST(:q IN BOOLEAN MODE)
             ORDER BY score DESC
             LIMIT $limit
         SQL;
 
-        return $this->connection->fetchAllAssociative($sql, ['q' => $query]);
+        return $this->connection->fetchAllAssociative($sql, ['q' => $booleanQuery]);
     }
 
     /** @return News[] */
-    public function findLatest(int $limit = 10): array
+    public function findLatest(int $limit = 10, int $offset = 0): array
     {
-        return $this->findBy([], ['publishedAt' => 'DESC'], $limit);
+        return $this->findBy([], ['publishedAt' => 'DESC'], $limit, $offset);
     }
 }

@@ -38,6 +38,16 @@ services:
         App\News\Source\NewsSourceFetcherInterface:
             tags: ['app.news_fetcher']
 
+    # Specific fetchers must come before GenericRssFetcher (higher priority = earlier in iterator)
+    App\News\Source\LentaFetcher:
+        tags: [{ name: 'app.news_fetcher', priority: 20 }]
+
+    App\News\Source\HabrFetcher:
+        tags: [{ name: 'app.news_fetcher', priority: 20 }]
+
+    App\News\Source\GenericRssFetcher:
+        tags: [{ name: 'app.news_fetcher', priority: 0 }]
+
     App\News\NewsImporter:
         arguments:
             $fetchers: !tagged_iterator app.news_fetcher

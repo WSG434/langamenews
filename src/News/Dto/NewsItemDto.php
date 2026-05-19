@@ -10,5 +10,7 @@ final readonly class NewsItemDto
         public ?string $summary = null,
         public ?string $content = null,
         public ?\DateTimeImmutable $publishedAt = null,
+        public ?string $url = null,
+        public ?string $imageUrl = null,
     ) {}
 }

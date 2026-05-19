@@ -76,6 +76,28 @@ class NewsImporterTest extends TestCase
         $this->assertSame(0, $count);
     }
 
+    public function testSkipsDuplicatesWithinSameBatch(): void
+    {
+        $source = $this->makeSource();
+        // Same uid appears twice in one fetch — simulates duplicate guids in real RSS
+        $dtos = [$this->makeDto('uid-dup'), $this->makeDto('uid-dup'), $this->makeDto('uid-unique')];
+
+        $fetcher = $this->createStub(NewsSourceFetcherInterface::class);
+        $fetcher->method('supports')->willReturn(true);
+        $fetcher->method('fetch')->willReturn($dtos);
+
+        $repo = $this->createStub(NewsRepository::class);
+        $repo->method('existsBySourceUid')->willReturn(false);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->exactly(2))->method('persist');
+
+        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger());
+        $count = $importer->import($source);
+
+        $this->assertSame(2, $count);
+    }
+
     public function testNoFetcherForUnknownType(): void
     {
         $source = $this->makeSource();

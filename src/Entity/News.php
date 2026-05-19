@@ -34,6 +34,12 @@ class News
     #[ORM\Column(length: 512)]
     private string $sourceUid;
 
+    #[ORM\Column(length: 2048, nullable: true)]
+    private ?string $url;
+
+    #[ORM\Column(length: 2048, nullable: true)]
+    private ?string $imageUrl;
+
     #[ORM\Column]
     private \DateTimeImmutable $fetchedAt;
 
@@ -44,6 +50,8 @@ class News
         ?string $summary = null,
         ?string $content = null,
         ?\DateTimeImmutable $publishedAt = null,
+        ?string $url = null,
+        ?string $imageUrl = null,
     ) {
         $this->title = $title;
         $this->source = $source;
@@ -51,6 +59,8 @@ class News
         $this->summary = $summary;
         $this->content = $content;
         $this->publishedAt = $publishedAt;
+        $this->url = $url;
+        $this->imageUrl = $imageUrl;
         $this->fetchedAt = new \DateTimeImmutable();
     }
 
@@ -61,5 +71,7 @@ class News
     public function getPublishedAt(): ?\DateTimeImmutable { return $this->publishedAt; }
     public function getSource(): string { return $this->source; }
     public function getSourceUid(): string { return $this->sourceUid; }
+    public function getUrl(): ?string { return $this->url; }
+    public function getImageUrl(): ?string { return $this->imageUrl; }
     public function getFetchedAt(): \DateTimeImmutable { return $this->fetchedAt; }
 }

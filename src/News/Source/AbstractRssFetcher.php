@@ -7,11 +7,11 @@ use App\News\Dto\NewsItemDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class RssFetcher implements NewsSourceFetcherInterface
+abstract class AbstractRssFetcher implements NewsSourceFetcherInterface
 {
     public function __construct(
-        private readonly HttpClientInterface $httpClient,
-        private readonly LoggerInterface $logger,
+        protected readonly HttpClientInterface $httpClient,
+        protected readonly LoggerInterface $logger,
     ) {}
 
     public function supports(NewsSource $source): bool
@@ -19,11 +19,10 @@ class RssFetcher implements NewsSourceFetcherInterface
         return $source->getType() === NewsSource::TYPE_RSS;
     }
 
-    public function fetch(NewsSource $source): iterable
+    final public function fetch(NewsSource $source): iterable
     {
         try {
-            $response = $this->httpClient->request('GET', $source->getUrl());
-            $xml = $response->getContent();
+            $xml = $this->httpClient->request('GET', $source->getUrl())->getContent();
         } catch (\Throwable $e) {
             $this->logger->error('RSS fetch failed', ['source' => $source->getCode(), 'error' => $e->getMessage()]);
             throw new \RuntimeException("Failed to fetch RSS from {$source->getUrl()}: {$e->getMessage()}", 0, $e);
@@ -44,33 +43,48 @@ class RssFetcher implements NewsSourceFetcherInterface
 
         foreach ($items as $item) {
             $guid = (string) ($item->guid ?? $item->link ?? '');
-            $title = (string) ($item->title ?? '');
+            $title = trim((string) ($item->title ?? ''));
 
             if ($guid === '' || $title === '') {
                 $this->logger->warning('Skipping RSS item without guid/title', ['source' => $source->getCode()]);
                 continue;
             }
 
-            $publishedAt = null;
             $pubDate = (string) ($item->pubDate ?? '');
-            if ($pubDate !== '') {
-                $publishedAt = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RSS, $pubDate) ?: null;
-                if ($publishedAt === null) {
-                    $publishedAt = (new \DateTimeImmutable($pubDate)) ?: null;
-                }
-            }
+            $publishedAt = $pubDate !== ''
+                ? (\DateTimeImmutable::createFromFormat(\DateTimeInterface::RSS, $pubDate)
+                    ?: (new \DateTimeImmutable($pubDate)) ?: null)
+                : null;
 
             yield new NewsItemDto(
-                title: trim($title),
+                title: $title,
                 sourceUid: $guid,
-                summary: trim((string) ($item->description ?? '')) ?: null,
+                summary: $this->extractSummary($item),
                 content: null,
                 publishedAt: $publishedAt,
+                url: trim((string) ($item->link ?? '')) ?: null,
+                imageUrl: $this->extractImage($item),
             );
 
             $count++;
         }
 
         $this->logger->info('RSS fetched', ['source' => $source->getCode(), 'items' => $count]);
+    }
+
+    protected function extractSummary(\SimpleXMLElement $item): ?string
+    {
+        $text = strip_tags(trim((string) ($item->description ?? '')));
+        return $text !== '' ? $text : null;
+    }
+
+    protected function extractImage(\SimpleXMLElement $item): ?string
+    {
+        $url = trim((string) ($item->enclosure['url'] ?? ''));
+        $type = trim((string) ($item->enclosure['type'] ?? ''));
+        if ($url !== '' && str_starts_with($type, 'image/')) {
+            return $url;
+        }
+        return null;
     }
 }

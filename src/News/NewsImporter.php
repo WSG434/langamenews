@@ -31,12 +31,14 @@ class NewsImporter
 
         $newCount = 0;
         $skipped = 0;
+        $seenInBatch = [];
 
         foreach ($fetcher->fetch($source) as $dto) {
-            if ($this->newsRepository->existsBySourceUid($source->getCode(), $dto->sourceUid)) {
+            if (isset($seenInBatch[$dto->sourceUid]) || $this->newsRepository->existsBySourceUid($source->getCode(), $dto->sourceUid)) {
                 $skipped++;
                 continue;
             }
+            $seenInBatch[$dto->sourceUid] = true;
 
             $news = new News(
                 title: $dto->title,
@@ -45,6 +47,8 @@ class NewsImporter
                 summary: $dto->summary,
                 content: $dto->content,
                 publishedAt: $dto->publishedAt,
+                url: $dto->url,
+                imageUrl: $dto->imageUrl,
             );
 
             $this->em->persist($news);
