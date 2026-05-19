@@ -32,6 +32,7 @@ security:
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/stream, roles: ROLE_USER }
         - { path: ^/news, roles: ROLE_USER }
 
 when@test:

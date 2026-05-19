@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Event\UserRegisteredEvent;
 use App\Message\SendConfirmationCodeMessage;
 use App\Repository\ConfirmationCodeRepository;
 use App\Repository\UserRepository;
@@ -10,6 +11,7 @@ use App\Service\Confirmation\ConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -27,6 +29,7 @@ class ConfirmationController extends AbstractController
         private readonly RateLimiterFactory $codeSendLimiter,
         private readonly RateLimiterFactory $codeAttemptsLimiter,
         private readonly Security $security,
+        private readonly EventDispatcherInterface $dispatcher,
     ) {}
 
     #[Route('/register/confirm/{id}', name: 'app_confirm', methods: ['GET', 'POST'])]
@@ -56,6 +59,7 @@ class ConfirmationController extends AbstractController
 
             try {
                 $this->confirmationService->validate($code, $input);
+                $this->dispatcher->dispatch(new UserRegisteredEvent($user));
                 $this->addFlash('success', 'Account confirmed! Welcome!');
                 return $this->security->login($user, 'form_login', 'main')
                     ?? $this->redirectToRoute('app_news');
