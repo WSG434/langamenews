@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}News Sources — News Aggregator{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .sources-page { max-width: 640px; margin: 0 auto; }
+    .sources-list { list-style: none; padding: 0; }
+    .source-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    .source-item:last-child { border-bottom: none; }
+    .source-name { font-size: 0.97rem; }
+    .source-type {
+        font-size: 0.75rem;
+        color: #888;
+        background: #f4f4f4;
+        border-radius: 3px;
+        padding: 1px 6px;
+        margin-left: 0.5rem;
+    }
+    .toggle-btn {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.2s;
+        flex-shrink: 0;
+    }
+    .toggle-btn::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        transition: left 0.2s;
+    }
+    .toggle-btn.on  { background: #28a745; }
+    .toggle-btn.off { background: #ccc; }
+    .toggle-btn.on::after  { left: 23px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="sources-page">
+    <h1>News Sources</h1>
+    <p style="color:#666;font-size:0.9rem">Toggle sources to show or hide them in your feed. Changes affect only your account.</p>
+
+    <ul class="sources-list">
+        {% for source in sources %}
+            {% set enabled = prefMap[source.id] is not defined or prefMap[source.id] %}
+            <li class="source-item" data-id="{{ source.id }}">
+                <span class="source-name">
+                    {{ source.name }}
+                    <span class="source-type">{{ source.type }}</span>
+                </span>
+                <button
+                    class="toggle-btn {{ enabled ? 'on' : 'off' }}"
+                    data-id="{{ source.id }}"
+                    title="{{ enabled ? 'Disable' : 'Enable' }}"
+                ></button>
+            </li>
+        {% else %}
+            <li style="color:#888;padding:1rem 0">No sources configured.</li>
+        {% endfor %}
+    </ul>
+
+    <p style="margin-top:1.5rem"><a href="{{ path('app_news') }}">← Back to news</a></p>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.querySelectorAll('.toggle-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var id = btn.dataset.id;
+        fetch('/news/sources/' + id + '/toggle', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                btn.classList.toggle('on', data.enabled);
+                btn.classList.toggle('off', !data.enabled);
+                btn.title = data.enabled ? 'Disable' : 'Enable';
+            });
+    });
+});
+</script>
+{% endblock %}

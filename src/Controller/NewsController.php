@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\NewsRepository;
+use App\Repository\UserNewsSourcePreferenceRepository;
 use App\Service\Search\Highlighter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,22 +19,30 @@ class NewsController extends AbstractController
 {
     public function __construct(
         private readonly NewsRepository $newsRepository,
+        private readonly UserNewsSourcePreferenceRepository $preferenceRepository,
         private readonly Highlighter $highlighter,
     ) {}
 
     #[Route('', name: 'app_news', methods: ['GET'])]
     public function index(): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
+        $excluded = $this->preferenceRepository->findDisabledSourceCodes($user);
+
         return $this->render('news/index.html.twig', [
-            'news' => $this->newsRepository->findLatest(10),
+            'news' => $this->newsRepository->findLatest(10, 0, $excluded),
         ]);
     }
 
     #[Route('/more', name: 'app_news_more', methods: ['GET'])]
     public function more(Request $request): JsonResponse
     {
+        /** @var User $user */
+        $user = $this->getUser();
+        $excluded = $this->preferenceRepository->findDisabledSourceCodes($user);
         $offset = max(0, $request->query->getInt('offset', 10));
-        $items = $this->newsRepository->findLatest(20, $offset);
+        $items = $this->newsRepository->findLatest(20, $offset, $excluded);
 
         return $this->json(array_map(fn ($n) => [
             'id' => $n->getId(),
@@ -48,6 +58,9 @@ class NewsController extends AbstractController
     #[Route('/search', name: 'app_news_search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
+        /** @var User $user */
+        $user = $this->getUser();
+        $excluded = $this->preferenceRepository->findDisabledSourceCodes($user);
         $q = trim($request->query->getString('q'));
 
         if ($q === '') {
@@ -61,12 +74,12 @@ class NewsController extends AbstractController
                     'url' => $n->getUrl(),
                     'imageUrl' => $n->getImageUrl(),
                 ],
-                $this->newsRepository->findLatest(10)
+                $this->newsRepository->findLatest(10, 0, $excluded)
             );
             return $this->json($rows);
         }
 
-        $rows = $this->newsRepository->searchFullText($q);
+        $rows = $this->newsRepository->searchFullText($q, 20, $excluded);
 
         $result = array_map(fn (array $row) => [
             'id' => $row['id'],

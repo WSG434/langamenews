@@ -19,3 +19,13 @@ $process->run();
 if (!$process->isSuccessful()) {
     echo "Migration failed: " . $process->getErrorOutput() . "\n";
 }
+
+// FULLTEXT index is a DDL statement — not rolled back by dama transactions.
+// Re-apply manually in case the test DB was re-created without it.
+$ftProcess = new Process(
+    ['php', 'bin/console', 'dbal:run-sql',
+     "ALTER TABLE news ADD FULLTEXT IF NOT EXISTS ft_search (title, summary, content)",
+     '--no-interaction', '--env=test'],
+    dirname(__DIR__)
+);
+$ftProcess->run(); // ignore errors (index may already exist)

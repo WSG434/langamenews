@@ -1,0 +1,22 @@
+{
+  "status": "ok",
+  "totalResults": 2,
+  "articles": [
+    {
+      "source": {"id": "bbc-news", "name": "BBC News"},
+      "author": "BBC",
+      "title": "Test article one",
+      "description": "Description of article one",
+      "url": "https://bbc.com/news/article-one",
+      "urlToImage": "https://bbc.com/images/one.jpg",
+      "publishedAt": "2026-05-19T20:00:00Z",
+      "content": "Full content here"
+    },
+    {
+      "source": {"id": null, "name": "Removed"},
+      "title": "[Removed]",
+      "url": "https://removed.com/article",
+      "publishedAt": "2026-05-19T19:00:00Z"
+    }
+  ]
+}

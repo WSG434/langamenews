@@ -1,0 +1,19 @@
+{
+  "response": {
+    "status": "ok",
+    "total": 2,
+    "results": [
+      {
+        "id": "world/2026/may/19/test-article",
+        "type": "article",
+        "webPublicationDate": "2026-05-19T18:00:00Z",
+        "webTitle": "Guardian test article",
+        "webUrl": "https://theguardian.com/world/2026/may/19/test-article",
+        "fields": {
+          "bodyText": "Article body text here",
+          "thumbnail": "https://media.guim.co.uk/thumb.jpg"
+        }
+      }
+    ]
+  }
+}

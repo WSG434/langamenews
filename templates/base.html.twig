@@ -24,6 +24,8 @@
             <span class="spacer"></span>
             {% if app.user %}
                 <span>{{ app.user.userIdentifier }}</span>
+                <a href="{{ path('app_news') }}">News</a>
+                <a href="{{ path('app_news_sources') }}">Sources</a>
                 {% if is_granted('ROLE_ADMIN') %}
                     <a href="{{ path('admin') }}">Admin</a>
                 {% endif %}

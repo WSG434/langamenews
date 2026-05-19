@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 class NewsSource
 {
     public const TYPE_RSS = 'rss';
+    public const TYPE_JSON_API = 'json_api';
+    public const TYPE_HTML = 'html';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

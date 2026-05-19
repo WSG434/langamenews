@@ -10,6 +10,8 @@ parameters:
     telegram_bot_token: '%env(TELEGRAM_BOT_TOKEN)%'
     telegram_chat_id: '%env(TELEGRAM_CHAT_ID)%'
     sse_loop_seconds: 55
+    news_api_key: '%env(default::NEWS_API_KEY)%'
+    guardian_api_key: '%env(default::GUARDIAN_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -50,6 +52,25 @@ services:
 
     App\News\Source\GenericRssFetcher:
         tags: [{ name: 'app.news_fetcher', priority: 0 }]
+
+    App\News\Source\NewsApiFetcher:
+        arguments:
+            $apiKey: '%news_api_key%'
+        tags: [{ name: 'app.news_fetcher', priority: 10 }]
+
+    App\News\Source\GuardianFetcher:
+        arguments:
+            $apiKey: '%guardian_api_key%'
+        tags: [{ name: 'app.news_fetcher', priority: 10 }]
+
+    App\News\Source\HackerNewsFetcher:
+        tags: [{ name: 'app.news_fetcher', priority: 10 }]
+
+    App\News\Source\ThreeDNewsFetcher:
+        tags: [{ name: 'app.news_fetcher', priority: 10 }]
+
+    App\News\Source\MkRuFetcher:
+        tags: [{ name: 'app.news_fetcher', priority: 10 }]
 
     App\News\NewsImporter:
         arguments:

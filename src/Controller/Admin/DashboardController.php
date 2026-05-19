@@ -28,5 +28,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-users');
         yield MenuItem::linkTo(ConfirmationCodeCrudController::class, 'Confirmation Codes', 'fa fa-envelope');
         yield MenuItem::linkTo(NewsCrudController::class, 'News', 'fa fa-newspaper');
+        yield MenuItem::linkTo(NewsSourceCrudController::class, 'News Sources', 'fa fa-rss');
     }
 }

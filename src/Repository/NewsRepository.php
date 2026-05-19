@@ -22,31 +22,57 @@ class NewsRepository extends ServiceEntityRepository
         return $this->count(['source' => $source, 'sourceUid' => $sourceUid]) > 0;
     }
 
-    /** @return array<array<string, mixed>> */
-    public function searchFullText(string $query, int $limit = 20): array
+    /**
+     * @param string[] $excludedSources
+     * @return array<array<string, mixed>>
+     */
+    public function searchFullText(string $query, int $limit = 20, array $excludedSources = []): array
     {
         $limit = max(1, (int) $limit);
-        // Add wildcard suffix to each word for prefix matching in BOOLEAN MODE
         $booleanQuery = implode(' ', array_map(
             fn (string $w) => '+' . $w . '*',
             array_filter(array_map('trim', preg_split('/\s+/', $query) ?: []))
         ));
+
+        $excludeClause = '';
+        $params = ['q' => $booleanQuery];
+        if ($excludedSources !== []) {
+            $excludeClause = 'AND source NOT IN (:excluded)';
+            $params['excluded'] = $excludedSources;
+        }
 
         $sql = <<<SQL
             SELECT id, title, summary, url, image_url, published_at, source,
                    MATCH(title, summary, content) AGAINST(:q IN BOOLEAN MODE) AS score
             FROM news
             WHERE MATCH(title, summary, content) AGAINST(:q IN BOOLEAN MODE)
+            $excludeClause
             ORDER BY score DESC
             LIMIT $limit
         SQL;
 
-        return $this->connection->fetchAllAssociative($sql, ['q' => $booleanQuery]);
+        return $this->connection->fetchAllAssociative($sql, $params, [
+            'excluded' => \Doctrine\DBAL\ArrayParameterType::STRING,
+        ]);
     }
 
-    /** @return News[] */
-    public function findLatest(int $limit = 10, int $offset = 0): array
+    /**
+     * @param string[] $excludedSources
+     * @return News[]
+     */
+    public function findLatest(int $limit = 10, int $offset = 0, array $excludedSources = []): array
     {
-        return $this->findBy([], ['publishedAt' => 'DESC'], $limit, $offset);
+        if ($excludedSources === []) {
+            return $this->findBy([], ['publishedAt' => 'DESC'], $limit, $offset);
+        }
+
+        return $this->createQueryBuilder('n')
+            ->where('n.source NOT IN (:excluded)')
+            ->setParameter('excluded', $excludedSources)
+            ->orderBy('n.publishedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
     }
 }
