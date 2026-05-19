@@ -49,7 +49,8 @@ class RegistrationFlowTest extends WebTestCase
         $form = $crawler->selectButton('Confirm')->form(['code' => '999888']);
         $client->submit($form);
 
-        $this->assertResponseRedirects('/login');
+        // After confirmation, user is auto-logged in and redirected to /news
+        $this->assertResponseRedirects('/news');
 
         $em->clear();
         $user = $em->find(User::class, $userId);

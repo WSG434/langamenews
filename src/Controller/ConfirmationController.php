@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use App\Service\Confirmation\ConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -25,6 +26,7 @@ class ConfirmationController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly RateLimiterFactory $codeSendLimiter,
         private readonly RateLimiterFactory $codeAttemptsLimiter,
+        private readonly Security $security,
     ) {}
 
     #[Route('/register/confirm/{id}', name: 'app_confirm', methods: ['GET', 'POST'])]
@@ -54,8 +56,9 @@ class ConfirmationController extends AbstractController
 
             try {
                 $this->confirmationService->validate($code, $input);
-                $this->addFlash('success', 'Account confirmed! You can now log in.');
-                return $this->redirectToRoute('app_login');
+                $this->addFlash('success', 'Account confirmed! Welcome!');
+                return $this->security->login($user, 'form_login', 'main')
+                    ?? $this->redirectToRoute('app_news');
             } catch (\DomainException $e) {
                 $messages = [
                     'expired' => 'Code has expired. Please request a new one.',
