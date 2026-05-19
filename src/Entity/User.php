@@ -28,7 +28,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isVerified = false;
 
-    #[ORM\Column(length: 64, nullable: true)]
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
     private ?string $telegramHandle = null;
 
     #[ORM\Column]
