@@ -15,7 +15,7 @@ class DashboardController extends AbstractDashboardController
 {
     public function index(): Response
     {
-        return $this->redirectToRoute('admin', ['crudAction' => 'index', 'crudControllerFqcn' => UserCrudController::class]);
+        return $this->redirectToRoute('admin_user_index');
     }
 
     public function configureDashboard(): Dashboard
@@ -25,7 +25,6 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-users');
         yield MenuItem::linkTo(ConfirmationCodeCrudController::class, 'Confirmation Codes', 'fa fa-envelope');
         yield MenuItem::linkTo(NewsCrudController::class, 'News', 'fa fa-newspaper');

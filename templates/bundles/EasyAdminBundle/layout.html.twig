@@ -1,0 +1,14 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block header_logo %}
+    <a class="logo" href="{{ path('app_home') }}">
+        <span class="logo-custom">{{ ea.dashboardTitle|raw }}</span>
+        <span class="logo-compact"><twig:ea:Icon name="internal:home" /></span>
+    </a>
+{% endblock %}
+
+{% block responsive_header_logo %}
+    <a class="responsive-logo" href="{{ path('app_home') }}">
+        {{ ea.dashboardTitle|raw }}
+    </a>
+{% endblock %}
