@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}News — News Aggregator{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .search-box { margin-bottom: 1.5rem; }
+    .search-box input {
+        width: 100%;
+        max-width: 600px;
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    .news-list { list-style: none; padding: 0; margin: 0; }
+    .news-item {
+        border-bottom: 1px solid #eee;
+        padding: 0.75rem 0;
+    }
+    .news-item:last-child { border-bottom: none; }
+    .news-item h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .news-item .meta { font-size: 0.8rem; color: #888; }
+    .news-item p { margin: 0.25rem 0 0; color: #444; font-size: 0.9rem; }
+    mark { background: #fff3cd; padding: 0 2px; border-radius: 2px; }
+    #results-placeholder { color: #888; padding: 1rem 0; }
+</style>
+{% endblock %}
+
+{% block body %}
+<h1>Latest News</h1>
+
+<div class="search-box">
+    <input type="text" id="q" placeholder="Search news…" autocomplete="off">
+</div>
+
+<ul class="news-list" id="news-list">
+    {% for item in news %}
+    <li class="news-item">
+        <h3>{{ item.title }}</h3>
+        {% if item.summary %}<p>{{ item.summary }}</p>{% endif %}
+        <div class="meta">{{ item.source }} · {{ item.publishedAt ? item.publishedAt|date('Y-m-d H:i') : '—' }}</div>
+    </li>
+    {% else %}
+    <li id="results-placeholder">No news yet. Run <code>php bin/console app:news:import</code> to import.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    var input = document.getElementById('q');
+    var list = document.getElementById('news-list');
+    var timer = null;
+
+    function renderItems(items) {
+        if (!items.length) {
+            list.innerHTML = '<li id="results-placeholder">No results found.</li>';
+            return;
+        }
+        list.innerHTML = items.map(function (n) {
+            return '<li class="news-item">'
+                + '<h3>' + n.title + '</h3>'
+                + (n.summary ? '<p>' + n.summary + '</p>' : '')
+                + '<div class="meta">' + n.source + ' &middot; ' + (n.publishedAt || '—') + '</div>'
+                + '</li>';
+        }).join('');
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            var q = input.value;
+            fetch('/news/search?q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(renderItems);
+        }, 300);
+    });
+}());
+</script>
+{% endblock %}

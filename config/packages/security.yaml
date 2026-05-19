@@ -21,7 +21,7 @@ security:
                 check_path: app_login
                 username_parameter: _username
                 password_parameter: _password
-                default_target_path: app_home
+                default_target_path: /news
                 enable_csrf: true
             logout:
                 path: app_logout
@@ -29,7 +29,7 @@ security:
 
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/news, roles: ROLE_USER }
+        - { path: ^/news, roles: ROLE_USER }
 
 when@test:
     security:

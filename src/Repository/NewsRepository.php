@@ -25,16 +25,17 @@ class NewsRepository extends ServiceEntityRepository
     /** @return array<array<string, mixed>> */
     public function searchFullText(string $query, int $limit = 20): array
     {
+        $limit = max(1, (int) $limit);
         $sql = <<<SQL
             SELECT id, title, summary, published_at, source,
                    MATCH(title, summary, content) AGAINST(:q IN NATURAL LANGUAGE MODE) AS score
             FROM news
             WHERE MATCH(title, summary, content) AGAINST(:q IN NATURAL LANGUAGE MODE)
             ORDER BY score DESC
-            LIMIT :limit
+            LIMIT $limit
         SQL;
 
-        return $this->connection->fetchAllAssociative($sql, ['q' => $query, 'limit' => $limit]);
+        return $this->connection->fetchAllAssociative($sql, ['q' => $query]);
     }
 
     /** @return News[] */
