@@ -4,10 +4,10 @@ namespace App\News;
 
 use App\Entity\News;
 use App\Entity\NewsSource;
-use App\Entity\Notification;
 use App\News\Source\NewsSourceFetcherInterface;
+use App\Notification\NotificationDispatcher;
+use App\Notification\NotificationMessage;
 use App\Repository\NewsRepository;
-use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -19,7 +19,7 @@ class NewsImporter
         private readonly NewsRepository $newsRepository,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
-        private readonly NotificationRepository $notifications,
+        private readonly NotificationDispatcher $notificationDispatcher,
     ) {}
 
     public function import(NewsSource $source): int
@@ -68,7 +68,7 @@ class NewsImporter
         ]);
 
         if ($newCount > 0) {
-            $this->notifications->save(new Notification('news_imported', [
+            $this->notificationDispatcher->dispatch(new NotificationMessage('news_imported', [
                 'source' => $source->getCode(),
                 'count' => $newCount,
             ]));

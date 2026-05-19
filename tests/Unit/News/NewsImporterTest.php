@@ -7,8 +7,8 @@ use App\Entity\NewsSource;
 use App\News\Dto\NewsItemDto;
 use App\News\NewsImporter;
 use App\News\Source\NewsSourceFetcherInterface;
+use App\Notification\NotificationDispatcher;
 use App\Repository\NewsRepository;
-use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -49,7 +49,7 @@ class NewsImporterTest extends TestCase
         $em->expects($this->exactly(3))->method('persist')->with($this->isInstanceOf(News::class));
         $em->expects($this->once())->method('flush');
 
-        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationRepository::class));
+        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationDispatcher::class));
         $count = $importer->import($source);
 
         $this->assertSame(3, $count);
@@ -71,7 +71,7 @@ class NewsImporterTest extends TestCase
         $em->expects($this->never())->method('persist');
         $em->expects($this->once())->method('flush');
 
-        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationRepository::class));
+        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationDispatcher::class));
         $count = $importer->import($source);
 
         $this->assertSame(0, $count);
@@ -93,7 +93,7 @@ class NewsImporterTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->exactly(2))->method('persist');
 
-        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationRepository::class));
+        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationDispatcher::class));
         $count = $importer->import($source);
 
         $this->assertSame(2, $count);
@@ -110,7 +110,7 @@ class NewsImporterTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->never())->method('flush');
 
-        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationRepository::class));
+        $importer = new NewsImporter([$fetcher], $repo, $em, new NullLogger(), $this->createStub(NotificationDispatcher::class));
         $count = $importer->import($source);
 
         $this->assertSame(0, $count);

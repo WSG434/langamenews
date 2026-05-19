@@ -37,6 +37,8 @@ services:
     _instanceof:
         App\News\Source\NewsSourceFetcherInterface:
             tags: ['app.news_fetcher']
+        App\Notification\NotificationSenderInterface:
+            tags: ['app.notification_sender']
 
     # Specific fetchers must come before GenericRssFetcher (higher priority = earlier in iterator)
     App\News\Source\LentaFetcher:
@@ -51,3 +53,15 @@ services:
     App\News\NewsImporter:
         arguments:
             $fetchers: !tagged_iterator app.news_fetcher
+
+    App\Notification\NotificationDispatcher:
+        arguments:
+            $senders: !tagged_iterator app.notification_sender
+
+when@test:
+    services:
+        App\Notification\Sender\TelegramNotificationSender:
+            arguments:
+                $telegram: '@App\Service\Telegram\TelegramSender'
+                $logger: '@logger'
+                $enabled: false

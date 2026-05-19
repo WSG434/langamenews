@@ -4,11 +4,15 @@ namespace App\Tests\Functional\Notifications;
 
 use App\Entity\ConfirmationCode;
 use App\Entity\Notification;
+use App\Entity\NewsSource;
 use App\Entity\User;
+use App\News\Dto\NewsItemDto;
 use App\News\NewsImporter;
 use App\News\Source\NewsSourceFetcherInterface;
-use App\News\Dto\NewsItemDto;
-use App\Entity\NewsSource;
+use App\Notification\NotificationDispatcher;
+use App\Notification\NotificationSenderInterface;
+use App\Notification\NotificationMessage;
+use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -84,17 +88,20 @@ class EventDispatchTest extends WebTestCase
             public function fetch(NewsSource $s): iterable { yield $this->dto; }
         };
 
+        $notifRepo = $em->getRepository(Notification::class);
+        $dispatcher = $this->makeDispatcher($notifRepo);
+
         $importer = new NewsImporter(
             [$fetcher],
             $em->getRepository(\App\Entity\News::class),
             $em,
             new \Psr\Log\NullLogger(),
-            $em->getRepository(Notification::class),
+            $dispatcher,
         );
 
         $importer->import($source);
 
-        $notifications = $em->getRepository(Notification::class)->findBy(['type' => 'news_imported']);
+        $notifications = $notifRepo->findBy(['type' => 'news_imported']);
         $this->assertCount(1, $notifications);
         $this->assertSame(1, $notifications[0]->getPayload()['count']);
     }
@@ -113,20 +120,32 @@ class EventDispatchTest extends WebTestCase
             public function fetch(NewsSource $s): iterable { return []; }
         };
 
-        $countBefore = count($em->getRepository(Notification::class)->findBy(['type' => 'news_imported']));
+        $notifRepo = $em->getRepository(Notification::class);
+        $countBefore = count($notifRepo->findBy(['type' => 'news_imported']));
 
         $importer = new NewsImporter(
             [$fetcher],
             $em->getRepository(\App\Entity\News::class),
             $em,
             new \Psr\Log\NullLogger(),
-            $em->getRepository(Notification::class),
+            $this->makeDispatcher($notifRepo),
         );
 
         $importer->import($source);
 
         $countAfter = count($em->getRepository(Notification::class)->findBy(['type' => 'news_imported']));
         $this->assertSame($countBefore, $countAfter);
+    }
+
+    private function makeDispatcher(NotificationRepository $repo): NotificationDispatcher
+    {
+        $sseSender = new class($repo) implements NotificationSenderInterface {
+            public function __construct(private readonly NotificationRepository $r) {}
+            public function send(NotificationMessage $m): void {
+                $this->r->save(new Notification($m->type, $m->payload));
+            }
+        };
+        return new NotificationDispatcher([$sseSender]);
     }
 
     private function createUnverifiedUser(EntityManagerInterface $em, string $email): User
