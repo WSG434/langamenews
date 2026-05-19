@@ -44,7 +44,6 @@ class StreamControllerTest extends WebTestCase
 
         /** @var NotificationRepository $repo */
         $repo = $em->getRepository(Notification::class);
-
         $results = $repo->findAfter($n1->getId());
 
         $this->assertCount(1, $results);

@@ -9,6 +9,7 @@
 parameters:
     telegram_bot_token: '%env(TELEGRAM_BOT_TOKEN)%'
     telegram_chat_id: '%env(TELEGRAM_CHAT_ID)%'
+    sse_loop_seconds: 55
 
 services:
     # default configuration for services in *this* file
@@ -58,7 +59,14 @@ services:
         arguments:
             $senders: !tagged_iterator app.notification_sender
 
+    App\Controller\NotificationStreamController:
+        arguments:
+            $loopSeconds: '%sse_loop_seconds%'
+
 when@test:
+    parameters:
+        sse_loop_seconds: 0
+
     services:
         App\Notification\Sender\TelegramNotificationSender:
             arguments:

@@ -10,7 +10,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class NotificationStreamController extends AbstractController
 {
-    public function __construct(private readonly NotificationRepository $notifications) {}
+    public function __construct(
+        private readonly NotificationRepository $notifications,
+        private readonly int $loopSeconds = 55,
+    ) {}
 
     #[Route('/stream/notifications', name: 'app_stream_notifications')]
     public function notifications(Request $request): StreamedResponse
@@ -23,11 +26,7 @@ class NotificationStreamController extends AbstractController
             $start = time();
             $current = $lastId;
 
-            while (true) {
-                if (connection_aborted() || time() - $start > 55) {
-                    break;
-                }
-
+            do {
                 $items = $this->notifications->findAfter($current);
 
                 foreach ($items as $notification) {
@@ -41,8 +40,12 @@ class NotificationStreamController extends AbstractController
                     flush();
                 }
 
+                if (connection_aborted() || time() - $start >= $this->loopSeconds) {
+                    break;
+                }
+
                 sleep(2);
-            }
+            } while (true);
         });
 
         $response->headers->set('Content-Type', 'text/event-stream');
