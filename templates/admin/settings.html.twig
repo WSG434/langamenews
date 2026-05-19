@@ -1,0 +1,33 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}Site Settings{% endblock %}
+
+{% block main %}
+<div style="max-width:500px">
+    <h2>Site Settings</h2>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'success' ? 'success' : 'danger' }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <form method="post" action="{{ path('admin_settings') }}">
+        <div class="mb-3" style="padding:1rem;border:1px solid #dee2e6;border-radius:6px">
+            <strong>Telegram Notifications</strong>
+            <p style="color:#666;font-size:0.9rem;margin:0.4rem 0 0.75rem">
+                Global toggle. When disabled, no events are sent to the Telegram channel regardless of user preferences.
+            </p>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                <input type="checkbox" name="telegram_enabled" value="1"
+                    {{ settings.telegramEnabled ? 'checked' : '' }}
+                    style="width:1.1rem;height:1.1rem">
+                Send notifications to Telegram channel
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{{ path('admin') }}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

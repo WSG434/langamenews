@@ -2,6 +2,7 @@
 
 namespace App\EventListener;
 
+use App\Entity\User;
 use App\Event\UserRegisteredEvent;
 use App\Notification\NotificationDispatcher;
 use App\Notification\NotificationMessage;
@@ -17,6 +18,7 @@ class NotificationListener
     {
         $this->dispatcher->dispatch(new NotificationMessage('user_registered', [
             'email' => $event->user->getEmail(),
+            'userId' => $event->user->getId(),
         ]));
     }
 
@@ -25,9 +27,13 @@ class NotificationListener
     {
         $user = $event->getAuthenticatedToken()->getUser();
         $email = method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : (string) $user;
+        $userId = $user instanceof User ? $user->getId() : null;
 
-        $this->dispatcher->dispatch(new NotificationMessage('user_logged_in', [
-            'email' => $email,
-        ]));
+        $payload = ['email' => $email];
+        if ($userId !== null) {
+            $payload['userId'] = $userId;
+        }
+
+        $this->dispatcher->dispatch(new NotificationMessage('user_logged_in', $payload));
     }
 }

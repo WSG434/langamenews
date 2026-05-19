@@ -4,6 +4,8 @@ namespace App\Notification\Sender;
 
 use App\Notification\NotificationMessage;
 use App\Notification\NotificationSenderInterface;
+use App\Repository\SiteSettingsRepository;
+use App\Repository\UserNotificationSettingRepository;
 use App\Service\Telegram\TelegramSender;
 use Psr\Log\LoggerInterface;
 
@@ -12,6 +14,8 @@ class TelegramNotificationSender implements NotificationSenderInterface
     public function __construct(
         private readonly TelegramSender $telegram,
         private readonly LoggerInterface $logger,
+        private readonly SiteSettingsRepository $siteSettingsRepository,
+        private readonly UserNotificationSettingRepository $userNotificationSettingRepository,
         private readonly bool $enabled = true,
     ) {}
 
@@ -19,6 +23,17 @@ class TelegramNotificationSender implements NotificationSenderInterface
     {
         if (!$this->enabled) {
             return;
+        }
+
+        if (!$this->siteSettingsRepository->getCurrent()->isTelegramEnabled()) {
+            return;
+        }
+
+        if (isset($message->payload['userId'])) {
+            $userSetting = $this->userNotificationSettingRepository->findForUserId($message->payload['userId']);
+            if ($userSetting !== null && !$userSetting->isTelegramEnabled()) {
+                return;
+            }
         }
 
         try {
