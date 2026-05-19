@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\NewsRepository;
+use App\Repository\NewsSourceRepository;
 use App\Repository\UserNewsSourcePreferenceRepository;
 use App\Service\Search\Highlighter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,6 +20,7 @@ class NewsController extends AbstractController
 {
     public function __construct(
         private readonly NewsRepository $newsRepository,
+        private readonly NewsSourceRepository $sourceRepository,
         private readonly UserNewsSourcePreferenceRepository $preferenceRepository,
         private readonly Highlighter $highlighter,
     ) {}
@@ -29,9 +31,12 @@ class NewsController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $excluded = $this->preferenceRepository->findDisabledSourceCodes($user);
+        $sources = $this->sourceRepository->findBy(['enabled' => true], ['name' => 'ASC']);
 
         return $this->render('news/index.html.twig', [
             'news' => $this->newsRepository->findLatest(10, 0, $excluded),
+            'sources' => $sources,
+            'disabledSourceCodes' => $excluded,
         ]);
     }
 

@@ -1,5 +1,5 @@
 {% if app.user %}
-<div id="toast-container" style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;"></div>
+<div id="toast-container" style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;max-width:320px;"></div>
 <script>
 (function () {
     var container = document.getElementById('toast-container');
@@ -13,10 +13,10 @@
         var label = labels[type] || type;
         var detail = '';
         if (payload.email) detail = ': ' + payload.email;
-        if (payload.count) detail = ': ' + payload.count + ' new items from ' + (payload.source || '');
+        if (payload.count) detail = ': ' + payload.count + ' new from ' + (payload.source || '');
 
         var el = document.createElement('div');
-        el.style.cssText = 'background:#333;color:#fff;padding:0.6rem 1rem;border-radius:4px;font-size:0.9rem;opacity:1;transition:opacity 0.4s';
+        el.style.cssText = 'background:#333;color:#fff;padding:0.6rem 1rem;border-radius:4px;font-size:0.9rem;opacity:1;transition:opacity 0.4s;word-break:break-word;';
         el.textContent = label + detail;
         container.appendChild(el);
 
@@ -26,21 +26,42 @@
         }, 5000);
     }
 
-    var lastId = 0;
-    var es = new EventSource('{{ path('app_stream_notifications') }}?lastId=' + lastId);
+    var SESSION_KEY = 'sse_last_id';
+    var es = null;
 
-    es.onmessage = function (e) {
-        var msg = JSON.parse(e.data);
-        if (msg.id > lastId) lastId = msg.id;
-        showToast(msg.type, msg.payload || {});
-    };
+    function connect(lastId) {
+        if (es) es.close();
+        es = new EventSource('{{ path('app_stream_notifications') }}?lastId=' + lastId);
 
-    es.onerror = function () {
-        es.close();
-        setTimeout(function () {
-            es = new EventSource('{{ path('app_stream_notifications') }}?lastId=' + lastId);
-        }, 3000);
-    };
+        es.onmessage = function (e) {
+            var msg = JSON.parse(e.data);
+            if (msg.id > lastId) {
+                lastId = msg.id;
+                sessionStorage.setItem(SESSION_KEY, lastId);
+            }
+            showToast(msg.type, msg.payload || {});
+        };
+
+        es.onerror = function () {
+            es.close();
+            setTimeout(function () { connect(lastId); }, 3000);
+        };
+    }
+
+    var stored = sessionStorage.getItem(SESSION_KEY);
+    if (stored !== null) {
+        connect(parseInt(stored, 10));
+    } else {
+        // First visit this session — start from current max so old events are not shown
+        fetch('{{ path('app_stream_notifications_last_id') }}')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var id = data.id || 0;
+                sessionStorage.setItem(SESSION_KEY, id);
+                connect(id);
+            })
+            .catch(function () { connect(0); });
+    }
 })();
 </script>
 {% endif %}

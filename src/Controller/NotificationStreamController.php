@@ -15,6 +15,13 @@ class NotificationStreamController extends AbstractController
         private readonly int $loopSeconds = 55,
     ) {}
 
+    #[Route('/stream/notifications/last-id', name: 'app_stream_notifications_last_id', methods: ['GET'])]
+    public function lastId(): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        return new \Symfony\Component\HttpFoundation\JsonResponse(['id' => $this->notifications->getMaxId()]);
+    }
+
     #[Route('/stream/notifications', name: 'app_stream_notifications')]
     public function notifications(Request $request): StreamedResponse
     {

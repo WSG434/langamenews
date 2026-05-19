@@ -27,6 +27,16 @@ class NotificationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getMaxId(): int
+    {
+        $result = $this->createQueryBuilder('n')
+            ->select('MAX(n.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) ($result ?? 0);
+    }
+
     public function save(Notification $notification): void
     {
         $this->getEntityManager()->persist($notification);
