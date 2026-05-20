@@ -40,6 +40,9 @@
                 sessionStorage.setItem(SESSION_KEY, lastId);
             }
             showToast(msg.type, msg.payload || {});
+            if (msg.type === 'news_imported' && typeof window.newsRefreshList === 'function') {
+                window.newsRefreshList();
+            }
         };
 
         es.onerror = function () {
