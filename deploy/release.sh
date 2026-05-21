@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deploy new code version. Safe to run on every release.
-# Usage (from local machine): ssh root@vps "bash /var/www/news/scripts/deploy/release.sh"
+# Usage (from local machine): ssh root@vps "bash /var/www/news/deploy/release.sh"
 # Or run directly on the server.
 set -euo pipefail
 

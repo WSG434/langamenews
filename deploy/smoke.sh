@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Smoke-checks for the deployed application.
-# Usage: bash scripts/smoke.sh https://news.example.com
+# Usage: bash deploy/smoke.sh https://langamenews.ru
 # Exits 0 if all checks pass, 1 otherwise.
 set -euo pipefail
 

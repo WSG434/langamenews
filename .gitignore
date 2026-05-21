@@ -4,7 +4,9 @@
 .editorconfig
 /.claude/
 /tmp/
-/data/mysql/
+/data/
+/docker/
+/docker-compose.yml
 ###< project ###
 
 ###> symfony/framework-bundle ###
