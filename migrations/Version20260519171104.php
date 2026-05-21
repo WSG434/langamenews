@@ -19,7 +19,6 @@ final class Version20260519171104 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE news DROP INDEX IF EXISTS ft_search');
         $this->addSql('ALTER TABLE news ADD FULLTEXT ft_search (title, summary, content)');
     }
 
