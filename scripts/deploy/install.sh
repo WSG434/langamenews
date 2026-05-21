@@ -49,25 +49,13 @@ else
     echo "   swap already present, skipping"
 fi
 
-echo "==> Tuning MySQL for 1GB RAM"
-cat > /etc/mysql/conf.d/news-tuning.cnf <<'CNF'
-[mysqld]
-innodb_buffer_pool_size = 128M
-innodb_log_file_size    = 32M
-query_cache_size        = 0
-key_buffer_size         = 8M
-max_connections         = 50
-CNF
-systemctl restart mysql
-
 echo "==> Creating app directory"
 mkdir -p "$APP_DIR"
 chown "$APP_USER:$APP_USER" "$APP_DIR"
 
 echo "==> MySQL: creating database and user"
-read -p "MySQL root password to set: " MYSQL_ROOT_PASS
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASS}';" 2>/dev/null || true
-mysql -uroot -p"${MYSQL_ROOT_PASS}" <<SQL
+echo "Enter MySQL root password (or press Enter if auth_socket is used):"
+mysql <<SQL
 CREATE DATABASE IF NOT EXISTS news CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'news'@'localhost' IDENTIFIED BY 'change_me_in_env';
 GRANT ALL PRIVILEGES ON news.* TO 'news'@'localhost';
