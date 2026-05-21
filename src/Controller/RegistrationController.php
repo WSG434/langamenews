@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\UserTelegram;
 use App\Form\RegistrationFormType;
 use App\Message\SendConfirmationCodeMessage;
 use App\Service\Confirmation\ConfirmationService;
@@ -41,6 +42,7 @@ class RegistrationController extends AbstractController
             }
 
             $em->persist($user);
+            $em->persist(new UserTelegram($user));
             $em->flush();
 
             $code = $confirmationService->generate($user);

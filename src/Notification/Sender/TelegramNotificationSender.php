@@ -6,6 +6,7 @@ use App\Notification\NotificationMessage;
 use App\Notification\NotificationSenderInterface;
 use App\Repository\SiteSettingsRepository;
 use App\Repository\UserNotificationSettingRepository;
+use App\Repository\UserTelegramRepository;
 use App\Service\Telegram\TelegramSender;
 use Psr\Log\LoggerInterface;
 
@@ -16,6 +17,7 @@ class TelegramNotificationSender implements NotificationSenderInterface
         private readonly LoggerInterface $logger,
         private readonly SiteSettingsRepository $siteSettingsRepository,
         private readonly UserNotificationSettingRepository $userNotificationSettingRepository,
+        private readonly UserTelegramRepository $userTelegramRepository,
         private readonly bool $enabled = true,
     ) {}
 
@@ -37,7 +39,15 @@ class TelegramNotificationSender implements NotificationSenderInterface
         }
 
         try {
-            $this->telegram->send($this->format($message), ['notification_type' => $message->type]);
+            $text = $this->format($message);
+            $userId = $message->payload['userId'] ?? null;
+            $chatId = $userId ? $this->userTelegramRepository->findLinkedChatId($userId) : null;
+
+            if ($chatId !== null) {
+                $this->telegram->sendTo($chatId, $text, ['notification_type' => $message->type]);
+            } else {
+                $this->telegram->send($text, ['notification_type' => $message->type]);
+            }
         } catch (\Throwable $e) {
             $this->logger->error('Failed to send Telegram notification', [
                 'type' => $message->type,

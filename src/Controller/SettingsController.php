@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\UserNotificationSetting;
+use App\Entity\UserTelegram;
 use App\Repository\UserNotificationSettingRepository;
+use App\Repository\UserTelegramRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +20,9 @@ class SettingsController extends AbstractController
 {
     public function __construct(
         private readonly UserNotificationSettingRepository $settingRepository,
+        private readonly UserTelegramRepository $telegramRepository,
         private readonly EntityManagerInterface $em,
+        private readonly string $botName,
     ) {}
 
     #[Route('', name: 'app_settings', methods: ['GET', 'POST'])]
@@ -39,8 +43,17 @@ class SettingsController extends AbstractController
             return $this->redirectToRoute('app_settings');
         }
 
+        $userTelegram = $this->telegramRepository->findForUser($user);
+        if ($userTelegram === null) {
+            $userTelegram = new UserTelegram($user);
+            $this->em->persist($userTelegram);
+            $this->em->flush();
+        }
+
         return $this->render('settings/index.html.twig', [
             'telegramEnabled' => $setting === null || $setting->isTelegramEnabled(),
+            'telegramLinked'  => $userTelegram->isLinked(),
+            'telegramLinkUrl' => "https://t.me/{$this->botName}?start={$userTelegram->getLinkToken()}",
         ]);
     }
 }

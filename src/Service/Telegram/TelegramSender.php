@@ -18,10 +18,15 @@ class TelegramSender
 
     public function send(string $text, array $context = []): void
     {
+        $this->sendTo((int) $this->chatId, $text, $context);
+    }
+
+    public function sendTo(int $chatId, string $text, array $context = []): void
+    {
         $url = "https://api.telegram.org/bot{$this->botToken}/sendMessage";
 
         $response = $this->httpClient->request('POST', $url, [
-            'json' => ['chat_id' => $this->chatId, 'text' => $text],
+            'json' => ['chat_id' => $chatId, 'text' => $text],
         ]);
 
         $status = $response->getStatusCode();
