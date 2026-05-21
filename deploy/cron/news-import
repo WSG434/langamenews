@@ -1,1 +1,1 @@
-*/10 * * * * www-data /usr/bin/php /var/www/news/bin/console app:news:import --env=prod >> /var/log/news-import.log 2>&1
+*/10 * * * * www-data /usr/bin/php /var/www/news/bin/console app:news:import --env=prod >> /var/www/news/var/log/cron-import.log 2>&1
