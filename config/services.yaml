@@ -84,6 +84,10 @@ services:
         arguments:
             $loopSeconds: '%sse_loop_seconds%'
 
+    App\Command\AppSetupCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
 when@test:
     parameters:
         sse_loop_seconds: 0

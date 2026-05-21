@@ -1,0 +1,16 @@
+[Unit]
+Description=News RabbitMQ consumer
+After=network.target rabbitmq-server.service
+Requires=rabbitmq-server.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/news
+ExecStart=/usr/bin/php /var/www/news/bin/console messenger:consume async --env=prod --time-limit=3600
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
