@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#111111"/>
+  <rect width="1200" height="4" y="0" fill="#DC0000"/>
+
+  <!-- grid lines decoration -->
+  <line x1="0" y1="100" x2="1200" y2="100" stroke="#1a1a1a" stroke-width="1"/>
+  <line x1="0" y1="530" x2="1200" y2="530" stroke="#1a1a1a" stroke-width="1"/>
+  <line x1="100" y1="0" x2="100" y2="630" stroke="#1a1a1a" stroke-width="1"/>
+  <line x1="1100" y1="0" x2="1100" y2="630" stroke="#1a1a1a" stroke-width="1"/>
+
+  <!-- logo placeholder text — LANGAME -->
+  <text x="600" y="270" font-family="Arial, sans-serif" font-size="96" font-weight="700"
+        fill="#ffffff" text-anchor="middle" letter-spacing="-2">LANGAME</text>
+
+  <!-- red accent line under logo -->
+  <rect x="440" y="295" width="320" height="3" fill="#DC0000"/>
+
+  <!-- subtitle -->
+  <text x="600" y="370" font-family="Arial, sans-serif" font-size="32" font-weight="400"
+        fill="#888888" text-anchor="middle" letter-spacing="4">НОВОСТНОЙ АГРЕГАТОР</text>
+
+  <!-- domain -->
+  <text x="600" y="490" font-family="Arial, sans-serif" font-size="22"
+        fill="#444444" text-anchor="middle">langamenews.ru</text>
+</svg>
