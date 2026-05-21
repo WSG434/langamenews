@@ -1,4 +1,7 @@
-# LanGame News — тестовое задание
+<h1 align="center">LanGame News</h1>
+  <h3 align="center">Новостной агрегатор</h3>
+
+![image1](https://github.com/WSG434/langamenews/blob/main/public/images/preview.jpg?raw=true&#41;)
 
 Новостной агрегатор на Symfony 8. Пользователи регистрируются через Telegram-подтверждение, читают новости из нескольких RSS-источников с полнотекстовым поиском и получают realtime-уведомления о событиях в системе.
 
