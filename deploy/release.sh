@@ -15,14 +15,16 @@ git pull --ff-only
 
 echo "==> Installing Composer dependencies (no-dev, optimized)"
 COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-chown -R "$APP_USER:$APP_USER" vendor/ var/ 2>/dev/null || true
 
 echo "==> Running migrations"
-php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+sudo -u "$APP_USER" php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
 echo "==> Clearing cache"
-php bin/console cache:clear --env=prod --no-warmup
-php bin/console cache:warmup --env=prod
+sudo -u "$APP_USER" php bin/console cache:clear --env=prod --no-warmup
+sudo -u "$APP_USER" php bin/console cache:warmup --env=prod
+
+echo "==> Fixing permissions"
+chown -R "$APP_USER:$APP_USER" vendor/ var/
 
 echo "==> Restarting services"
 systemctl restart php8.5-fpm
