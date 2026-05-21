@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Message\SendConfirmationCodeMessage;
-use App\Repository\UserRepository;
 use App\Service\Confirmation\ConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +21,6 @@ class RegistrationController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $hasher,
         EntityManagerInterface $em,
-        UserRepository $users,
         ConfirmationService $confirmationService,
         MessageBusInterface $bus,
     ): Response {
@@ -30,19 +28,11 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        $form = $this->createForm(RegistrationFormType::class);
+        $user = new User();
+        $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $email = $form->get('email')->getData();
-
-            if ($users->findOneBy(['email' => $email])) {
-                $this->addFlash('error', 'This email is already registered.');
-                return $this->render('registration/register.html.twig', ['form' => $form]);
-            }
-
-            $user = new User();
-            $user->setEmail($email);
             $user->setPassword($hasher->hashPassword($user, $form->get('plainPassword')->getData()));
 
             $handle = $form->get('telegramHandle')->getData();
