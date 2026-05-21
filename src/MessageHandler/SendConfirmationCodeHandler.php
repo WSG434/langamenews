@@ -42,16 +42,14 @@ class SendConfirmationCodeHandler
         $context = ['codeId' => $message->codeId, 'userId' => $code->getUser()->getId()];
 
         $user = $code->getUser();
-        $text = "Ваш код подтверждения: {$code->getCode()}";
-
         $chatId = $this->userTelegramRepository->findLinkedChatId($user->getId());
-        if ($chatId !== null) {
-            $this->telegram->sendTo($chatId, $text, $context);
-        } else {
-            $handle = $user->getTelegramHandle();
-            $mention = $handle ? "@{$handle} " : '';
-            $this->telegram->send("{$mention}{$text}", $context);
+
+        if ($chatId === null) {
+            $this->logger->info('No Telegram linked, confirmation code not sent', $context);
+            return;
         }
+
+        $this->telegram->sendTo($chatId, "Ваш код подтверждения: {$code->getCode()}", $context);
 
         $code->markSent();
         $this->em->flush();
