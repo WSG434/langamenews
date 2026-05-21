@@ -61,8 +61,8 @@ class RegistrationTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorExists('.flash-error');
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('body', 'This email is already registered.');
     }
 
     public function testWeakPasswordShowsError(): void
