@@ -1,39 +1,78 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register — News Aggregator{% endblock %}
+{% block title %}Регистрация — LanGame News{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .auth-wrap {
+        max-width: 420px;
+        margin: 3rem auto;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-top: 3px solid #DC0000;
+        border-radius: 4px;
+        padding: 2rem;
+    }
+    .auth-wrap h1 { margin: 0 0 1.5rem; font-size: 1.4rem; color: #fff; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; color: #aaa; }
+    .form-group input {
+        width: 100%; padding: 0.6rem 0.75rem;
+        background: #111; border: 1px solid #333; border-radius: 3px;
+        color: #e0e0e0; font-size: 0.95rem; outline: none; box-sizing: border-box;
+    }
+    .form-group input:focus { border-color: #DC0000; }
+    .form-error { color: #e07070; font-size: 0.82rem; margin-top: 0.25rem; }
+    .btn-submit {
+        width: 100%; padding: 0.65rem;
+        background: #DC0000; color: #fff; border: none;
+        border-radius: 3px; font-size: 1rem; cursor: pointer; margin-top: 0.5rem;
+    }
+    .btn-submit:hover { background: #b00000; }
+    .auth-foot { margin-top: 1.25rem; font-size: 0.85rem; color: #888; text-align: center; }
+    .auth-foot a { color: #DC0000; text-decoration: none; }
+    .auth-foot a:hover { text-decoration: underline; }
+    .hint { font-size: 0.78rem; color: #666; margin-top: 0.2rem; }
+</style>
+{% endblock %}
 
 {% block body %}
-<h1>Register</h1>
+<div class="auth-wrap">
+    <h1>Регистрация</h1>
 
-{{ form_start(form, {attr: {style: 'max-width:400px'}}) }}
-    <div style="margin-bottom:1rem">
-        {{ form_label(form.email) }}<br>
-        {{ form_widget(form.email, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
-        {{ form_errors(form.email) }}
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.telegramHandle) }}
+            {{ form_widget(form.telegramHandle) }}
+            <div class="hint">Например: @username — для получения кода подтверждения</div>
+            {{ form_errors(form.telegramHandle) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.plainPassword.first) }}
+            {{ form_widget(form.plainPassword.first) }}
+            {{ form_errors(form.plainPassword.first) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.plainPassword.second) }}
+            {{ form_widget(form.plainPassword.second) }}
+            {{ form_errors(form.plainPassword.second) }}
+        </div>
+
+        {{ form_errors(form) }}
+
+        <button type="submit" class="btn-submit">Зарегистрироваться</button>
+    {{ form_end(form) }}
+
+    <div class="auth-foot">
+        Уже есть аккаунт? <a href="{{ path('app_login') }}">Войти</a>
     </div>
-
-    <div style="margin-bottom:1rem">
-        {{ form_label(form.telegramHandle) }}<br>
-        {{ form_widget(form.telegramHandle, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
-        {{ form_errors(form.telegramHandle) }}
-    </div>
-
-    <div style="margin-bottom:1rem">
-        {{ form_label(form.plainPassword.first) }}<br>
-        {{ form_widget(form.plainPassword.first, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
-        {{ form_errors(form.plainPassword.first) }}
-    </div>
-
-    <div style="margin-bottom:1rem">
-        {{ form_label(form.plainPassword.second) }}<br>
-        {{ form_widget(form.plainPassword.second, {attr: {style: 'width:100%;padding:0.5rem;box-sizing:border-box'}}) }}
-        {{ form_errors(form.plainPassword.second) }}
-    </div>
-
-    {{ form_errors(form) }}
-
-    <button type="submit" style="padding:0.5rem 1.5rem">Register</button>
-{{ form_end(form) }}
-
-<p style="margin-top:1rem"><a href="{{ path('app_login') }}">Already have an account? Login</a></p>
+</div>
 {% endblock %}

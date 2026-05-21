@@ -4,19 +4,19 @@
 (function () {
     var container = document.getElementById('toast-container');
     var labels = {
-        user_registered: 'New user registered',
-        user_logged_in: 'User logged in',
-        news_imported: 'News imported'
+        user_registered: 'Новый пользователь',
+        user_logged_in: 'Вход в систему',
+        news_imported: 'Новости импортированы'
     };
 
     function showToast(type, payload) {
         var label = labels[type] || type;
         var detail = '';
         if (payload.email) detail = ': ' + payload.email;
-        if (payload.count) detail = ': ' + payload.count + ' new from ' + (payload.source || '');
+        if (payload.count) detail = ': ' + payload.count + ' из ' + (payload.source || '');
 
         var el = document.createElement('div');
-        el.style.cssText = 'background:#333;color:#fff;padding:0.6rem 1rem;border-radius:4px;font-size:0.9rem;opacity:1;transition:opacity 0.4s;word-break:break-word;';
+        el.style.cssText = 'background:#1a1a1a;color:#e0e0e0;border:1px solid #333;border-left:3px solid #DC0000;padding:0.6rem 1rem;border-radius:3px;font-size:0.85rem;opacity:1;transition:opacity 0.4s;word-break:break-word;';
         el.textContent = label + detail;
         container.appendChild(el);
 

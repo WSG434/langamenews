@@ -2,37 +2,111 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}News Aggregator{% endblock %}</title>
+        <title>{% block title %}LanGame News{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
         <style>
-            body { font-family: sans-serif; margin: 0; padding: 0; }
-            nav { background: #333; color: #fff; padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
-            nav a { color: #fff; text-decoration: none; }
-            nav a:hover { text-decoration: underline; }
+            *, *::before, *::after { box-sizing: border-box; }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: #111;
+                color: #e0e0e0;
+                min-height: 100vh;
+            }
+
+            nav {
+                background: #000;
+                border-bottom: 2px solid #DC0000;
+                padding: 0 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                height: 56px;
+            }
+
+            nav .logo {
+                display: flex;
+                align-items: center;
+                flex-shrink: 0;
+            }
+
+            nav .logo img {
+                height: 28px;
+                width: auto;
+                filter: brightness(0) invert(1);
+            }
+
             nav .spacer { flex: 1; }
-            main { padding: 2rem 1.5rem; }
-            .flash { padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 4px; }
-            .flash-success { background: #d4edda; color: #155724; }
-            .flash-error { background: #f8d7da; color: #721c24; }
-            .flash-info { background: #d1ecf1; color: #0c5460; }
+
+            nav a {
+                color: #ccc;
+                text-decoration: none;
+                font-size: 0.9rem;
+                letter-spacing: 0.02em;
+                transition: color 0.15s;
+            }
+
+            nav a:hover { color: #DC0000; }
+
+            nav .nav-user {
+                color: #888;
+                font-size: 0.85rem;
+            }
+
+            nav .btn-accent {
+                background: #DC0000;
+                color: #fff !important;
+                padding: 0.35rem 0.9rem;
+                border-radius: 3px;
+                font-size: 0.85rem;
+            }
+
+            nav .btn-accent:hover {
+                background: #b00000;
+                color: #fff !important;
+            }
+
+            main {
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 2rem 1.5rem;
+            }
+
+            .flash {
+                padding: 0.75rem 1rem;
+                margin-bottom: 1rem;
+                border-radius: 3px;
+                font-size: 0.9rem;
+                border-left: 3px solid transparent;
+            }
+
+            .flash-success { background: #1a2e1a; color: #6fcf6f; border-color: #6fcf6f; }
+            .flash-error   { background: #2e1a1a; color: #e07070; border-color: #DC0000; }
+            .flash-info    { background: #1a1e2e; color: #7070e0; border-color: #7070e0; }
+            .flash-warning { background: #2e2a1a; color: #e0c070; border-color: #e0c070; }
         </style>
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
         <nav>
-            <a href="{{ path('app_home') }}"><strong>News Aggregator</strong></a>
+            <a href="{{ path('app_home') }}" class="logo">
+                <img src="{{ asset('images/logo.svg') }}" alt="LanGame">
+            </a>
             <span class="spacer"></span>
             {% if app.user %}
-                <span>{{ app.user.userIdentifier }}</span>
-                <a href="{{ path('app_news') }}">News</a>
-                <a href="{{ path('app_settings') }}">Settings</a>
+                <span class="nav-user">{{ app.user.userIdentifier }}</span>
+                <a href="{{ path('app_news') }}">Новости</a>
+                <a href="{{ path('app_settings') }}">Настройки</a>
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('admin') }}">Admin</a>
+                    <a href="{{ path('admin') }}">Админ</a>
                 {% endif %}
-                <a href="{{ path('app_logout') }}">Logout</a>
+                <a href="{{ path('app_logout') }}">Выйти</a>
             {% else %}
-                <a href="{{ path('app_login') }}">Login</a>
-                <a href="{{ path('app_register') }}">Register</a>
+                <a href="{{ path('app_login') }}">Войти</a>
+                <a href="{{ path('app_register') }}" class="btn-accent">Регистрация</a>
             {% endif %}
         </nav>
         <main>

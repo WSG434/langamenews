@@ -1,24 +1,62 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Confirm your account{% endblock %}
+{% block title %}Подтверждение — LanGame News{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .auth-wrap {
+        max-width: 420px;
+        margin: 3rem auto;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-top: 3px solid #DC0000;
+        border-radius: 4px;
+        padding: 2rem;
+    }
+    .auth-wrap h1 { margin: 0 0 0.5rem; font-size: 1.4rem; color: #fff; }
+    .auth-wrap p { color: #888; font-size: 0.9rem; margin: 0 0 1.5rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; color: #aaa; }
+    .form-group input {
+        width: 100%; padding: 0.6rem 0.75rem;
+        background: #111; border: 1px solid #333; border-radius: 3px;
+        color: #e0e0e0; font-size: 1.4rem; letter-spacing: 0.3em;
+        text-align: center; outline: none; box-sizing: border-box;
+    }
+    .form-group input:focus { border-color: #DC0000; }
+    .btn-submit {
+        width: 100%; padding: 0.65rem;
+        background: #DC0000; color: #fff; border: none;
+        border-radius: 3px; font-size: 1rem; cursor: pointer;
+    }
+    .btn-submit:hover { background: #b00000; }
+    .btn-resend {
+        width: 100%; padding: 0.55rem;
+        background: transparent; color: #888; border: 1px solid #333;
+        border-radius: 3px; font-size: 0.9rem; cursor: pointer; margin-top: 0.75rem;
+    }
+    .btn-resend:hover { border-color: #555; color: #ccc; }
+</style>
+{% endblock %}
 
 {% block body %}
-<h1>Confirm your account</h1>
-<p>A 6-digit confirmation code has been sent to your Telegram. Enter it below.</p>
+<div class="auth-wrap">
+    <h1>Подтверждение аккаунта</h1>
+    <p>6-значный код отправлен в Telegram. Введите его ниже.</p>
 
-<form method="post" action="{{ path('app_confirm', {id: userId}) }}">
-    <input type="hidden" name="_token" value="{{ csrf_token('confirm_' ~ userId) }}">
-    <div>
-        <label for="code">Confirmation code</label><br>
-        <input type="text" id="code" name="code" maxlength="6" inputmode="numeric" pattern="\d{6}" autofocus required>
-    </div>
-    <br>
-    <button type="submit">Confirm</button>
-</form>
+    <form method="post" action="{{ path('app_confirm', {id: userId}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('confirm_' ~ userId) }}">
+        <div class="form-group">
+            <label for="code">Код подтверждения</label>
+            <input type="text" id="code" name="code" maxlength="6"
+                   inputmode="numeric" pattern="\d{6}" autofocus required>
+        </div>
+        <button type="submit" class="btn-submit">Подтвердить</button>
+    </form>
 
-<br>
-<form method="post" action="{{ path('app_confirm_resend', {id: userId}) }}">
-    <input type="hidden" name="_token" value="{{ csrf_token('resend_' ~ userId) }}">
-    <button type="submit">Resend code</button>
-</form>
+    <form method="post" action="{{ path('app_confirm_resend', {id: userId}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('resend_' ~ userId) }}">
+        <button type="submit" class="btn-resend">Отправить код повторно</button>
+    </form>
+</div>
 {% endblock %}

@@ -6,15 +6,17 @@
 <style>
     .page-container { max-width: 860px; margin: 0 auto; }
 
+    .page-container h1 { font-size: 1.3rem; color: #fff; margin: 0 0 1.25rem; }
+
     .source-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
     .chip {
         display: inline-flex; align-items: center; gap: 0.3rem;
         padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.8rem;
-        cursor: pointer; border: 1px solid #ccc; background: #fff;
-        color: #444; transition: background 0.15s, color 0.15s, border-color 0.15s;
+        cursor: pointer; border: 1px solid #333; background: #1a1a1a;
+        color: #888; transition: background 0.15s, color 0.15s, border-color 0.15s;
         user-select: none;
     }
-    .chip.active { background: #333; color: #fff; border-color: #333; }
+    .chip.active { background: #DC0000; color: #fff; border-color: #DC0000; }
     .chip.loading { opacity: 0.5; pointer-events: none; }
 
     .search-box { margin-bottom: 1.5rem; }
@@ -22,12 +24,15 @@
         width: 100%;
         padding: 0.6rem 0.9rem;
         font-size: 1rem;
-        border: 1px solid #ccc;
-        border-radius: 6px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #e0e0e0;
         box-sizing: border-box;
         outline: none;
     }
-    .search-box input:focus { border-color: #555; }
+    .search-box input:focus { border-color: #DC0000; }
+    .search-box input::placeholder { color: #555; }
 
     .news-list { list-style: none; padding: 0; margin: 0; }
 
@@ -35,7 +40,7 @@
         display: flex;
         gap: 1rem;
         padding: 1rem 0;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #222;
         align-items: flex-start;
     }
     .news-item:last-child { border-bottom: none; }
@@ -45,8 +50,8 @@
         width: 120px;
         height: 80px;
         object-fit: cover;
-        border-radius: 4px;
-        background: #f0f0f0;
+        border-radius: 3px;
+        background: #222;
     }
 
     .news-item__body { flex: 1; min-width: 0; }
@@ -56,13 +61,13 @@
         font-size: 0.97rem;
         line-height: 1.4;
     }
-    .news-item__title a { color: #1a1a1a; text-decoration: none; }
-    .news-item__title a:hover { text-decoration: underline; color: #0066cc; }
-    .news-item__title a:visited { color: #551a8b; }
+    .news-item__title a { color: #e0e0e0; text-decoration: none; }
+    .news-item__title a:hover { color: #DC0000; }
+    .news-item__title a:visited { color: #aaa; }
 
     .news-item__summary {
         margin: 0 0 0.4rem;
-        color: #555;
+        color: #777;
         font-size: 0.85rem;
         line-height: 1.5;
         display: -webkit-box;
@@ -71,27 +76,27 @@
         overflow: hidden;
     }
 
-    .news-item__meta { font-size: 0.76rem; color: #999; }
+    .news-item__meta { font-size: 0.76rem; color: #555; }
     .news-item__source {
         display: inline-block;
-        background: #f0f0f0;
+        background: #222;
         border-radius: 3px;
         padding: 1px 6px;
         margin-right: 5px;
-        color: #555;
+        color: #888;
         font-weight: 500;
     }
 
-    mark { background: #fff3cd; padding: 0 1px; border-radius: 2px; }
+    mark { background: #5a1a00; color: #ffaa80; padding: 0 1px; border-radius: 2px; }
     #scroll-sentinel { height: 1px; }
-    #loading-indicator { text-align: center; padding: 1rem 0; color: #aaa; font-size: 0.9rem; display: none; }
-    #results-empty { color: #888; padding: 1rem 0; }
+    #loading-indicator { text-align: center; padding: 1rem 0; color: #555; font-size: 0.85rem; display: none; }
+    #results-empty { color: #555; padding: 1rem 0; }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="page-container">
-    <h1>Latest News</h1>
+    <h1>Последние новости</h1>
 
     <div class="source-chips" id="source-chips">
         {% for source in sources %}
@@ -103,7 +108,7 @@
     </div>
 
     <div class="search-box">
-        <input type="text" id="q" placeholder="Search news…" autocomplete="off">
+        <input type="text" id="q" placeholder="Поиск новостей…" autocomplete="off">
     </div>
 
     <ul class="news-list" id="news-list">
@@ -130,11 +135,11 @@
             </div>
         </li>
         {% else %}
-        <li id="results-empty">No news yet. Run <code>php bin/console app:news:import</code>.</li>
+        <li id="results-empty">Новостей пока нет.</li>
         {% endfor %}
     </ul>
 
-    <div id="loading-indicator">Loading…</div>
+    <div id="loading-indicator">Загрузка…</div>
     <div id="scroll-sentinel"></div>
 </div>
 {% endblock %}
@@ -182,7 +187,7 @@
     function replaceItems(items) {
         list.innerHTML = '';
         if (items.length === 0) {
-            list.innerHTML = '<li id="results-empty">No results found.</li>';
+            list.innerHTML = '<li id="results-empty">Ничего не найдено.</li>';
         } else {
             appendItems(items);
         }

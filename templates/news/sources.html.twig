@@ -1,24 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}News Sources — News Aggregator{% endblock %}
+{% block title %}Источники новостей — LanGame News{% endblock %}
 
 {% block stylesheets %}
 <style>
     .sources-page { max-width: 640px; margin: 0 auto; }
+    .sources-page h1 { font-size: 1.3rem; color: #fff; margin: 0 0 0.4rem; }
+    .sources-page > p { color: #666; font-size: 0.85rem; margin: 0 0 1.5rem; }
     .sources-list { list-style: none; padding: 0; }
     .source-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 0;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #222;
     }
     .source-item:last-child { border-bottom: none; }
-    .source-name { font-size: 0.97rem; }
+    .source-name { font-size: 0.97rem; color: #e0e0e0; }
     .source-type {
         font-size: 0.75rem;
-        color: #888;
-        background: #f4f4f4;
+        color: #666;
+        background: #222;
         border-radius: 3px;
         padding: 1px 6px;
         margin-left: 0.5rem;
@@ -44,16 +46,18 @@
         background: #fff;
         transition: left 0.2s;
     }
-    .toggle-btn.on  { background: #28a745; }
-    .toggle-btn.off { background: #ccc; }
+    .toggle-btn.on  { background: #DC0000; }
+    .toggle-btn.off { background: #444; }
     .toggle-btn.on::after  { left: 23px; }
+    .back-link { color: #666; text-decoration: none; font-size: 0.9rem; }
+    .back-link:hover { color: #DC0000; }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="sources-page">
-    <h1>News Sources</h1>
-    <p style="color:#666;font-size:0.9rem">Toggle sources to show or hide them in your feed. Changes affect only your account.</p>
+    <h1>Источники новостей</h1>
+    <p>Включайте и отключайте источники для своей ленты. Изменения влияют только на ваш аккаунт.</p>
 
     <ul class="sources-list">
         {% for source in sources %}
@@ -66,15 +70,15 @@
                 <button
                     class="toggle-btn {{ enabled ? 'on' : 'off' }}"
                     data-id="{{ source.id }}"
-                    title="{{ enabled ? 'Disable' : 'Enable' }}"
+                    title="{{ enabled ? 'Отключить' : 'Включить' }}"
                 ></button>
             </li>
         {% else %}
-            <li style="color:#888;padding:1rem 0">No sources configured.</li>
+            <li style="color:#555;padding:1rem 0">Источники не настроены.</li>
         {% endfor %}
     </ul>
 
-    <p style="margin-top:1.5rem"><a href="{{ path('app_news') }}">← Back to news</a></p>
+    <p style="margin-top:1.5rem"><a href="{{ path('app_news') }}" class="back-link">← К новостям</a></p>
 </div>
 {% endblock %}
 
@@ -88,7 +92,7 @@ document.querySelectorAll('.toggle-btn').forEach(function (btn) {
             .then(function (data) {
                 btn.classList.toggle('on', data.enabled);
                 btn.classList.toggle('off', !data.enabled);
-                btn.title = data.enabled ? 'Disable' : 'Enable';
+                btn.title = data.enabled ? 'Отключить' : 'Включить';
             });
     });
 });

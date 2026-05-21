@@ -1,30 +1,52 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Settings — News Aggregator{% endblock %}
+{% block title %}Настройки — LanGame News{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .settings-wrap { max-width: 500px; margin: 0 auto; }
+    .settings-wrap h1 { font-size: 1.3rem; color: #fff; margin: 0 0 1.5rem; }
+    .settings-card {
+        padding: 1.25rem;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
+        background: #1a1a1a;
+        margin-bottom: 1.5rem;
+    }
+    .settings-card strong { color: #fff; font-size: 0.95rem; }
+    .settings-card p { color: #666; font-size: 0.85rem; margin: 0.4rem 0 0.75rem; line-height: 1.5; }
+    .settings-card label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #ccc; font-size: 0.9rem; }
+    .settings-card input[type=checkbox] { width: 1.1rem; height: 1.1rem; accent-color: #DC0000; }
+    .btn-save {
+        padding: 0.55rem 1.4rem;
+        background: #DC0000; color: #fff; border: none;
+        border-radius: 3px; cursor: pointer; font-size: 0.95rem;
+    }
+    .btn-save:hover { background: #b00000; }
+    .back-link { margin-left: 1rem; color: #666; text-decoration: none; font-size: 0.9rem; }
+    .back-link:hover { color: #DC0000; }
+</style>
+{% endblock %}
 
 {% block body %}
-<div style="max-width:500px;margin:0 auto">
-    <h1>My Settings</h1>
+<div class="settings-wrap">
+    <h1>Настройки</h1>
 
     <form method="post" action="{{ path('app_settings') }}">
-        <div style="padding:1rem;border:1px solid #ddd;border-radius:6px;margin-bottom:1.5rem">
-            <strong>Telegram Notifications</strong>
-            <p style="color:#666;font-size:0.9rem;margin:0.4rem 0 0.75rem">
-                Controls whether your actions (login, registration) are announced in the Telegram channel.
-                System events (news imports) are not affected by this setting.
+        <div class="settings-card">
+            <strong>Уведомления в Telegram</strong>
+            <p>
+                Управляет тем, будут ли ваши действия (вход, регистрация) объявляться в Telegram-канале.
+                Системные события (импорт новостей) этой настройкой не затрагиваются.
             </p>
-            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
-                <input type="checkbox" name="telegram_enabled" value="1"
-                    {{ telegramEnabled ? 'checked' : '' }}
-                    style="width:1.1rem;height:1.1rem">
-                Send my events to Telegram
+            <label>
+                <input type="checkbox" name="telegram_enabled" value="1" {{ telegramEnabled ? 'checked' : '' }}>
+                Отправлять мои события в Telegram
             </label>
         </div>
 
-        <button type="submit" style="padding:0.5rem 1.2rem;background:#333;color:#fff;border:none;border-radius:4px;cursor:pointer">
-            Save
-        </button>
-        <a href="{{ path('app_news') }}" style="margin-left:1rem;color:#555">← Back to news</a>
+        <button type="submit" class="btn-save">Сохранить</button>
+        <a href="{{ path('app_news') }}" class="back-link">← К новостям</a>
     </form>
 </div>
 {% endblock %}
