@@ -31,8 +31,8 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Telegram username',
                 'attr' => ['placeholder' => '@username или username'],
                 'constraints' => [
-                    new Length(max: 64),
-                    new Regex(pattern: '/^\w+$/', message: 'Только буквы, цифры и подчёркивание.'),
+                    new Length(max: 65),
+                    new Regex(pattern: '/^@?\w+$/', message: 'Только буквы, цифры и подчёркивание.'),
                 ],
             ])
             ->add('plainPassword', RepeatedType::class, [
