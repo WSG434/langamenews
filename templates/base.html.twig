@@ -17,72 +17,176 @@
                 min-height: 100vh;
             }
 
+            /* NAV */
             nav {
                 background: #000;
                 border-bottom: 2px solid #DC0000;
-                padding: 0 1.5rem;
+                padding: 0 1.25rem;
                 display: flex;
                 align-items: center;
-                gap: 1.5rem;
-                height: 56px;
+                height: 52px;
+                position: relative;
             }
 
             nav .logo {
                 display: flex;
                 align-items: center;
                 flex-shrink: 0;
+                margin-right: auto;
             }
-
             nav .logo img {
-                height: 28px;
+                height: 26px;
                 width: auto;
                 filter: brightness(0) invert(1);
             }
 
-            nav .spacer { flex: 1; }
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
 
-            nav a {
-                color: #ccc;
+            .nav-links a {
+                color: #aaa;
                 text-decoration: none;
-                font-size: 0.9rem;
-                letter-spacing: 0.02em;
-                transition: color 0.15s;
-            }
-
-            nav a:hover { color: #DC0000; }
-
-            nav .nav-user {
-                color: #888;
                 font-size: 0.85rem;
+                padding: 0.35rem 0.65rem;
+                border-radius: 3px;
+                transition: color 0.15s, background 0.15s;
+                white-space: nowrap;
             }
+            .nav-links a:hover { color: #fff; background: #1a1a1a; }
 
-            nav .btn-accent {
+            .nav-links .btn-accent {
                 background: #DC0000;
                 color: #fff !important;
-                padding: 0.35rem 0.9rem;
+                padding: 0.35rem 0.8rem;
+            }
+            .nav-links .btn-accent:hover { background: #b00000; }
+
+            /* USER DROPDOWN */
+            .nav-dropdown {
+                position: relative;
+            }
+            .nav-dropdown-trigger {
+                display: flex;
+                align-items: center;
+                gap: 0.35rem;
+                cursor: pointer;
+                padding: 0.35rem 0.65rem;
                 border-radius: 3px;
+                transition: background 0.15s;
+            }
+            .nav-dropdown-trigger:hover { background: #1a1a1a; }
+            .nav-dropdown-trigger .nav-email {
+                color: #ccc;
                 font-size: 0.85rem;
+                max-width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .nav-dropdown-trigger .nav-arrow {
+                color: #555;
+                font-size: 0.65rem;
+                transition: transform 0.15s;
+            }
+            .nav-dropdown.open .nav-arrow { transform: rotate(180deg); }
+            .nav-dropdown-menu {
+                display: none;
+                position: absolute;
+                top: calc(100% + 6px);
+                right: 0;
+                background: #1a1a1a;
+                border: 1px solid #2a2a2a;
+                border-top: 2px solid #DC0000;
+                border-radius: 3px;
+                min-width: 160px;
+                z-index: 200;
+                overflow: hidden;
+            }
+            .nav-dropdown.open .nav-dropdown-menu { display: block; }
+            .nav-dropdown-menu a {
+                display: block;
+                padding: 0.6rem 1rem;
+                color: #aaa;
+                text-decoration: none;
+                font-size: 0.85rem;
+                border-bottom: 1px solid #222;
+                transition: background 0.15s, color 0.15s;
+            }
+            .nav-dropdown-menu a:last-child { border-bottom: none; }
+            .nav-dropdown-menu a:hover { background: #222; color: #fff; }
+            .nav-dropdown-menu .menu-logout { color: #888; }
+            .nav-dropdown-menu .menu-logout:hover { color: #DC0000; }
+
+            /* BURGER */
+            .nav-burger {
+                display: none;
+                flex-direction: column;
+                justify-content: center;
+                gap: 5px;
+                width: 36px;
+                height: 36px;
+                cursor: pointer;
+                background: none;
+                border: none;
+                padding: 4px;
+                border-radius: 3px;
+            }
+            .nav-burger span {
+                display: block;
+                height: 2px;
+                background: #aaa;
+                border-radius: 2px;
+                transition: background 0.15s;
+            }
+            .nav-burger:hover span { background: #fff; }
+
+            /* MOBILE MENU */
+            .nav-mobile {
+                display: none;
+                position: absolute;
+                top: 52px;
+                left: 0; right: 0;
+                background: #0d0d0d;
+                border-bottom: 2px solid #DC0000;
+                z-index: 100;
+                flex-direction: column;
+                padding: 0.5rem 0;
+            }
+            .nav-mobile.open { display: flex; }
+            .nav-mobile a, .nav-mobile .nav-user {
+                display: block;
+                padding: 0.7rem 1.25rem;
+                color: #aaa;
+                text-decoration: none;
+                font-size: 0.9rem;
+                border-bottom: 1px solid #1a1a1a;
+            }
+            .nav-mobile .nav-user { color: #555; font-size: 0.8rem; }
+            .nav-mobile a:hover { color: #fff; background: #1a1a1a; }
+            .nav-mobile .btn-accent { color: #DC0000 !important; }
+
+            @media (max-width: 600px) {
+                .nav-links { display: none; }
+                .nav-burger { display: flex; }
             }
 
-            nav .btn-accent:hover {
-                background: #b00000;
-                color: #fff !important;
-            }
-
+            /* MAIN */
             main {
                 max-width: 1100px;
                 margin: 0 auto;
-                padding: 2rem 1.5rem;
+                padding: 1.5rem 1rem;
             }
 
             .flash {
-                padding: 0.75rem 1rem;
+                padding: 0.7rem 1rem;
                 margin-bottom: 1rem;
                 border-radius: 3px;
-                font-size: 0.9rem;
+                font-size: 0.88rem;
                 border-left: 3px solid transparent;
             }
-
             .flash-success { background: #1a2e1a; color: #6fcf6f; border-color: #6fcf6f; }
             .flash-error   { background: #2e1a1a; color: #e07070; border-color: #DC0000; }
             .flash-info    { background: #1a1e2e; color: #7070e0; border-color: #7070e0; }
@@ -95,20 +199,48 @@
             <a href="{{ path('app_home') }}" class="logo">
                 <img src="{{ asset('images/logo.svg') }}" alt="LanGame">
             </a>
-            <span class="spacer"></span>
-            {% if app.user %}
-                <span class="nav-user">{{ app.user.userIdentifier }}</span>
-                <a href="{{ path('app_news') }}">Новости</a>
-                <a href="{{ path('app_settings') }}">Настройки</a>
-                {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('admin') }}">Админ</a>
+
+            <div class="nav-links">
+                {% if app.user %}
+                    <div class="nav-dropdown" id="nav-dropdown">
+                        <div class="nav-dropdown-trigger" id="nav-dropdown-trigger">
+                            <span class="nav-email">{{ app.user.userIdentifier }}</span>
+                            <span class="nav-arrow">▾</span>
+                        </div>
+                        <div class="nav-dropdown-menu">
+                            <a href="{{ path('app_news') }}">Новости</a>
+                            <a href="{{ path('app_settings') }}">Настройки</a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('admin') }}">Админ</a>
+                            {% endif %}
+                            <a href="{{ path('app_logout') }}" class="menu-logout">Выйти</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ path('app_login') }}">Войти</a>
+                    <a href="{{ path('app_register') }}" class="btn-accent">Регистрация</a>
                 {% endif %}
-                <a href="{{ path('app_logout') }}">Выйти</a>
-            {% else %}
-                <a href="{{ path('app_login') }}">Войти</a>
-                <a href="{{ path('app_register') }}" class="btn-accent">Регистрация</a>
-            {% endif %}
+            </div>
+
+            <button class="nav-burger" id="nav-burger" aria-label="Меню">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-mobile" id="nav-mobile">
+                {% if app.user %}
+                    <a href="{{ path('app_news') }}">Новости</a>
+                    <a href="{{ path('app_settings') }}">Настройки</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('admin') }}">Админ</a>
+                    {% endif %}
+                    <a href="{{ path('app_logout') }}">Выйти</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}">Войти</a>
+                    <a href="{{ path('app_register') }}" class="btn-accent">Регистрация</a>
+                {% endif %}
+            </div>
         </nav>
+
         <main>
             {% for type, messages in app.flashes %}
                 {% for message in messages %}
@@ -117,6 +249,35 @@
             {% endfor %}
             {% block body %}{% endblock %}
         </main>
+
+        <script>
+            (function () {
+                var burger = document.getElementById('nav-burger');
+                var mobileMenu = document.getElementById('nav-mobile');
+                var dropdown = document.getElementById('nav-dropdown');
+                var dropdownTrigger = document.getElementById('nav-dropdown-trigger');
+
+                if (burger && mobileMenu) {
+                    burger.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        mobileMenu.classList.toggle('open');
+                    });
+                }
+
+                if (dropdown && dropdownTrigger) {
+                    dropdownTrigger.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        dropdown.classList.toggle('open');
+                    });
+                }
+
+                document.addEventListener('click', function () {
+                    if (mobileMenu) mobileMenu.classList.remove('open');
+                    if (dropdown) dropdown.classList.remove('open');
+                });
+            })();
+        </script>
+
         {% block javascripts %}{% endblock %}
         {% include '_notifications.html.twig' %}
     </body>
