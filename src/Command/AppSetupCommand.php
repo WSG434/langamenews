@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\NewsSource;
 use App\Repository\NewsSourceRepository;
 use App\Repository\SiteSettingsRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -86,16 +87,10 @@ class AppSetupCommand extends Command
             return Command::FAILURE;
         }
 
-        // 4. News sources fixtures
+        // 4. News sources
         $io->section('News sources');
-        if ($this->newsSourceRepository->count([]) === 0) {
-            $io->writeln(' Loading fixtures…');
-            $this->getApplication()->find('doctrine:fixtures:load')
-                ->run(new ArrayInput(['--append' => true, '--no-interaction' => true]), $output);
-            $io->writeln(' <info>✓</info> Sources loaded');
-        } else {
-            $io->writeln(' <info>✓</info> Sources already present (' . $this->newsSourceRepository->count([]) . ')');
-        }
+        $this->seedNewsSources();
+        $io->writeln(' <info>✓</info> Sources present (' . $this->newsSourceRepository->count([]) . ')');
 
         // 5. SiteSettings init
         $io->section('Site settings');
@@ -115,5 +110,27 @@ class AppSetupCommand extends Command
         ]);
 
         return Command::SUCCESS;
+    }
+
+    private function seedNewsSources(): void
+    {
+        $sources = [
+            ['lenta',      'Lenta.ru',               NewsSource::TYPE_RSS,      'https://lenta.ru/rss/news'],
+            ['habr',       'Habr',                   NewsSource::TYPE_RSS,      'https://habr.com/ru/rss/news/'],
+            ['hackernews', 'Hacker News',             NewsSource::TYPE_JSON_API, 'https://hacker-news.firebaseio.com/v0/topstories.json'],
+            ['newsapi',    'NewsAPI',                 NewsSource::TYPE_JSON_API, 'https://newsapi.org/v2/top-headlines?country=us&pageSize=20'],
+            ['guardian',   'The Guardian',            NewsSource::TYPE_JSON_API, 'https://content.guardianapis.com/search?page-size=20'],
+            ['3dnews',     '3DNews',                  NewsSource::TYPE_HTML,     'https://3dnews.ru/news/'],
+            ['mkru',       'Московский Комсомолец',  NewsSource::TYPE_HTML,     'https://www.mk.ru/news/'],
+        ];
+
+        foreach ($sources as [$code, $name, $type, $url]) {
+            if ($this->newsSourceRepository->findOneBy(['code' => $code]) !== null) {
+                continue;
+            }
+            $this->em->persist(new NewsSource($code, $name, $url, $type));
+        }
+
+        $this->em->flush();
     }
 }
