@@ -70,7 +70,7 @@ class RegistrationTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/register');
 
-        $form = $crawler->selectButton('Register')->form([
+        $form = $crawler->filter('form')->form([
             'registration_form[email]' => 'weak@example.com',
             'registration_form[plainPassword][first]' => 'short',
             'registration_form[plainPassword][second]' => 'short',
@@ -78,6 +78,6 @@ class RegistrationTest extends WebTestCase
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorTextContains('body', 'at least 8 characters');
+        $this->assertSelectorTextContains('body', 'не менее 8 символов');
     }
 }

@@ -4,75 +4,103 @@
 
 {% block stylesheets %}
 <style>
-    .auth-wrap {
-        max-width: 420px;
-        margin: 3rem auto;
+    .auth-page {
+        min-height: calc(100vh - 56px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    .auth-box {
+        width: 100%;
+        max-width: 400px;
         background: #1a1a1a;
         border: 1px solid #2a2a2a;
         border-top: 3px solid #DC0000;
         border-radius: 4px;
-        padding: 2rem;
+        padding: 2.5rem 2rem;
     }
-    .auth-wrap h1 { margin: 0 0 1.5rem; font-size: 1.4rem; color: #fff; }
+    .auth-logo {
+        display: block;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .auth-logo img { height: 32px; filter: brightness(0) invert(1); }
+    .auth-box h1 {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #888;
+        font-weight: 400;
+        margin: 0 0 1.75rem;
+        letter-spacing: 0.03em;
+    }
     .form-group { margin-bottom: 1.1rem; }
-    .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; color: #aaa; }
+    .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.82rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
     .form-group input {
-        width: 100%; padding: 0.6rem 0.75rem;
-        background: #111; border: 1px solid #333; border-radius: 3px;
+        width: 100%; padding: 0.65rem 0.85rem;
+        background: #111; border: 1px solid #2e2e2e; border-radius: 3px;
         color: #e0e0e0; font-size: 0.95rem; outline: none; box-sizing: border-box;
+        transition: border-color 0.15s;
     }
     .form-group input:focus { border-color: #DC0000; }
-    .form-error { color: #e07070; font-size: 0.82rem; margin-top: 0.25rem; }
+    .form-group .hint { font-size: 0.78rem; color: #555; margin-top: 0.25rem; }
+    .form-errors { color: #e07070; font-size: 0.82rem; margin-top: 0.25rem; }
     .btn-submit {
-        width: 100%; padding: 0.65rem;
+        width: 100%; padding: 0.7rem;
         background: #DC0000; color: #fff; border: none;
-        border-radius: 3px; font-size: 1rem; cursor: pointer; margin-top: 0.5rem;
+        border-radius: 3px; font-size: 0.95rem; cursor: pointer;
+        margin-top: 0.5rem; letter-spacing: 0.03em;
+        transition: background 0.15s;
     }
     .btn-submit:hover { background: #b00000; }
-    .auth-foot { margin-top: 1.25rem; font-size: 0.85rem; color: #888; text-align: center; }
+    .auth-foot { margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: #666; }
     .auth-foot a { color: #DC0000; text-decoration: none; }
     .auth-foot a:hover { text-decoration: underline; }
-    .hint { font-size: 0.78rem; color: #666; margin-top: 0.2rem; }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="auth-wrap">
-    <h1>Регистрация</h1>
+<div class="auth-page">
+    <div class="auth-box">
+        <a href="{{ path('app_home') }}" class="auth-logo">
+            <img src="{{ asset('images/logo.svg') }}" alt="LanGame">
+        </a>
+        <h1>Создайте аккаунт</h1>
 
-    {{ form_start(form) }}
-        <div class="form-group">
-            {{ form_label(form.email) }}
-            {{ form_widget(form.email) }}
-            {{ form_errors(form.email) }}
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email, {attr: {autofocus: true}}) }}
+                <div class="form-errors">{{ form_errors(form.email) }}</div>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.telegramHandle) }}
+                {{ form_widget(form.telegramHandle) }}
+                <div class="hint">Необязательно — для @упоминания в коде подтверждения</div>
+                <div class="form-errors">{{ form_errors(form.telegramHandle) }}</div>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.plainPassword.first) }}
+                {{ form_widget(form.plainPassword.first) }}
+                <div class="form-errors">{{ form_errors(form.plainPassword.first) }}</div>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.plainPassword.second) }}
+                {{ form_widget(form.plainPassword.second) }}
+                <div class="form-errors">{{ form_errors(form.plainPassword.second) }}</div>
+            </div>
+
+            <div class="form-errors">{{ form_errors(form) }}</div>
+
+            <button type="submit" class="btn-submit">Зарегистрироваться</button>
+        {{ form_end(form) }}
+
+        <div class="auth-foot">
+            Уже есть аккаунт? <a href="{{ path('app_login') }}">Войти</a>
         </div>
-
-        <div class="form-group">
-            {{ form_label(form.telegramHandle) }}
-            {{ form_widget(form.telegramHandle) }}
-            <div class="hint">Например: @username — для получения кода подтверждения</div>
-            {{ form_errors(form.telegramHandle) }}
-        </div>
-
-        <div class="form-group">
-            {{ form_label(form.plainPassword.first) }}
-            {{ form_widget(form.plainPassword.first) }}
-            {{ form_errors(form.plainPassword.first) }}
-        </div>
-
-        <div class="form-group">
-            {{ form_label(form.plainPassword.second) }}
-            {{ form_widget(form.plainPassword.second) }}
-            {{ form_errors(form.plainPassword.second) }}
-        </div>
-
-        {{ form_errors(form) }}
-
-        <button type="submit" class="btn-submit">Зарегистрироваться</button>
-    {{ form_end(form) }}
-
-    <div class="auth-foot">
-        Уже есть аккаунт? <a href="{{ path('app_login') }}">Войти</a>
     </div>
 </div>
 {% endblock %}

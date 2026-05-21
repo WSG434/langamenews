@@ -28,21 +28,21 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('telegramHandle', TextType::class, [
                 'required' => false,
-                'label' => 'Telegram username (optional, for @mention in code)',
-                'attr' => ['placeholder' => 'username (without @)'],
+                'label' => 'Telegram username',
+                'attr' => ['placeholder' => '@username или username'],
                 'constraints' => [
                     new Length(max: 64),
-                    new Regex(pattern: '/^\w+$/', message: 'Only letters, digits and underscore allowed.'),
+                    new Regex(pattern: '/^\w+$/', message: 'Только буквы, цифры и подчёркивание.'),
                 ],
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
-                'first_options' => ['label' => 'Password'],
-                'second_options' => ['label' => 'Confirm password'],
+                'first_options' => ['label' => 'Пароль'],
+                'second_options' => ['label' => 'Повторите пароль'],
                 'constraints' => [
                     new NotBlank(),
-                    new Length(min: 8, minMessage: 'Password must be at least {{ limit }} characters'),
+                    new Length(min: 8, minMessage: 'Пароль должен быть не менее {{ limit }} символов'),
                 ],
             ]);
     }
