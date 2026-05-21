@@ -33,11 +33,6 @@ services:
             $botToken: '%telegram_bot_token%'
             $chatId: '%telegram_chat_id%'
 
-    App\Controller\ConfirmationController:
-        arguments:
-            $codeSendLimiter: '@limiter.code_send'
-            $codeAttemptsLimiter: '@limiter.code_attempts'
-
     _instanceof:
         App\News\Source\NewsSourceFetcherInterface:
             tags: ['app.news_fetcher']
@@ -91,6 +86,12 @@ services:
 
     App\Controller\SettingsController:
         arguments:
+            $botName: '%telegram_bot_name%'
+
+    App\Controller\ConfirmationController:
+        arguments:
+            $codeSendLimiter: '@limiter.code_send'
+            $codeAttemptsLimiter: '@limiter.code_attempts'
             $botName: '%telegram_bot_name%'
 
 when@test:

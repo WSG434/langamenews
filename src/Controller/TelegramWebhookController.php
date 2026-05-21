@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\UserTelegram;
+use App\Repository\ConfirmationCodeRepository;
 use App\Repository\UserTelegramRepository;
 use App\Service\Telegram\TelegramSender;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +18,7 @@ class TelegramWebhookController extends AbstractController
     public function __invoke(
         Request $request,
         UserTelegramRepository $telegramRepository,
+        ConfirmationCodeRepository $confirmationCodes,
         EntityManagerInterface $em,
         TelegramSender $sender,
     ): JsonResponse {
@@ -45,7 +47,14 @@ class TelegramWebhookController extends AbstractController
         $userTelegram->link($chatId);
         $em->flush();
 
-        $sender->sendTo($chatId, 'Telegram успешно привязан! Теперь вы будете получать уведомления здесь.');
+        $pendingCode = $confirmationCodes->findPendingForUser($userTelegram->getUser());
+        if ($pendingCode !== null) {
+            $sender->sendTo($chatId, "Ваш код подтверждения: {$pendingCode->getCode()}");
+            $pendingCode->markSent();
+            $em->flush();
+        } else {
+            $sender->sendTo($chatId, 'Telegram успешно привязан! Теперь вы будете получать уведомления здесь.');
+        }
 
         return new JsonResponse(['ok' => true]);
     }

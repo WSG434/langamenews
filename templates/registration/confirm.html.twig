@@ -36,13 +36,27 @@
         border-radius: 3px; font-size: 0.9rem; cursor: pointer; margin-top: 0.75rem;
     }
     .btn-resend:hover { border-color: #555; color: #ccc; }
+    .tg-hint { margin: 1.25rem 0 0; padding: 1rem; background: #0d1f2d; border: 1px solid #1a4a6e; border-radius: 4px; }
+    .tg-hint p { margin: 0 0 0.75rem; color: #90caf9; font-size: 0.88rem; }
+    .btn-tg { display: block; text-align: center; padding: 0.55rem; background: #0088cc; color: #fff; border-radius: 3px; text-decoration: none; font-size: 0.9rem; }
+    .btn-tg:hover { background: #006ea6; }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="auth-wrap">
     <h1>Подтверждение аккаунта</h1>
-    <p>6-значный код отправлен в Telegram. Введите его ниже.</p>
+    {% if not telegramLinked %}
+        <p>Откройте нашего Telegram-бота — он пришлёт вам код подтверждения.</p>
+        {% if telegramLinkUrl %}
+        <div class="tg-hint">
+            <p>Нажмите кнопку ниже, откроется бот — нажмите Start и получите код.</p>
+            <a href="{{ telegramLinkUrl }}" target="_blank" class="btn-tg">Открыть Telegram-бота</a>
+        </div>
+        {% endif %}
+    {% else %}
+        <p>Код отправлен в Telegram. Введите его ниже.</p>
+    {% endif %}
 
     <form method="post" action="{{ path('app_confirm', {id: userId}) }}">
         <input type="hidden" name="_token" value="{{ csrf_token('confirm_' ~ userId) }}">

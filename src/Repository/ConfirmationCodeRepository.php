@@ -17,6 +17,21 @@ class ConfirmationCodeRepository extends ServiceEntityRepository
         parent::__construct($registry, ConfirmationCode::class);
     }
 
+    public function findPendingForUser(User $user): ?ConfirmationCode
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.user = :user')
+            ->andWhere('c.status = :status')
+            ->andWhere('c.expiresAt > :now')
+            ->setParameter('user', $user)
+            ->setParameter('status', ConfirmationCode::STATUS_PENDING)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->orderBy('c.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findActiveForUser(User $user): ?ConfirmationCode
     {
         return $this->createQueryBuilder('c')

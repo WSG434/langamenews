@@ -7,6 +7,7 @@ use App\Event\UserRegisteredEvent;
 use App\Message\SendConfirmationCodeMessage;
 use App\Repository\ConfirmationCodeRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserTelegramRepository;
 use App\Service\Confirmation\ConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,12 +25,14 @@ class ConfirmationController extends AbstractController
         private readonly UserRepository $users,
         private readonly ConfirmationCodeRepository $codes,
         private readonly ConfirmationService $confirmationService,
+        private readonly UserTelegramRepository $telegramRepository,
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
         private readonly RateLimiterFactory $codeSendLimiter,
         private readonly RateLimiterFactory $codeAttemptsLimiter,
         private readonly Security $security,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly string $botName,
     ) {}
 
     #[Route('/register/confirm/{id}', name: 'app_confirm', methods: ['GET', 'POST'])]
@@ -46,13 +49,13 @@ class ConfirmationController extends AbstractController
             $attemptsLimiter = $this->codeAttemptsLimiter->create("code_attempts_{$id}");
             if (!$attemptsLimiter->consume(1)->isAccepted()) {
                 $this->addFlash('error', 'Too many attempts. Please request a new code.');
-                return $this->render('registration/confirm.html.twig', ['userId' => $id]);
+                return $this->render('registration/confirm.html.twig', $this->templateVars($user));
             }
 
             $code = $this->codes->findActiveForUser($user);
             if ($code === null) {
                 $this->addFlash('error', 'Code expired or not found. Please request a new one.');
-                return $this->render('registration/confirm.html.twig', ['userId' => $id]);
+                return $this->render('registration/confirm.html.twig', $this->templateVars($user));
             }
 
             $input = trim($request->request->get('code', ''));
@@ -73,7 +76,7 @@ class ConfirmationController extends AbstractController
             }
         }
 
-        return $this->render('registration/confirm.html.twig', ['userId' => $id]);
+        return $this->render('registration/confirm.html.twig', $this->templateVars($user));
     }
 
     #[Route('/register/confirm/{id}/resend', name: 'app_confirm_resend', methods: ['POST'])]
@@ -102,6 +105,16 @@ class ConfirmationController extends AbstractController
 
         $this->addFlash('info', 'A new confirmation code has been sent.');
         return $this->redirectToRoute('app_confirm', ['id' => $id]);
+    }
+
+    private function templateVars(User $user): array
+    {
+        $tg = $this->telegramRepository->findForUser($user);
+        return [
+            'userId'          => $user->getId(),
+            'telegramLinked'  => $tg?->isLinked() ?? false,
+            'telegramLinkUrl' => $tg ? "https://t.me/{$this->botName}?start={$tg->getLinkToken()}" : null,
+        ];
     }
 
     private function findUserOr404(int $id): User
