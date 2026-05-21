@@ -35,6 +35,31 @@ curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
 echo "==> Installing tools"
 apt-get install -y git unzip certbot python3-certbot-nginx
 
+echo "==> Adding swap (1GB) for low-memory VPS"
+if ! swapon --show | grep -q swap; then
+    fallocate -l 1G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    sysctl vm.swappiness=10
+    echo 'vm.swappiness=10' >> /etc/sysctl.conf
+    echo "   swap created"
+else
+    echo "   swap already present, skipping"
+fi
+
+echo "==> Tuning MySQL for 1GB RAM"
+cat > /etc/mysql/conf.d/news-tuning.cnf <<'CNF'
+[mysqld]
+innodb_buffer_pool_size = 128M
+innodb_log_file_size    = 32M
+query_cache_size        = 0
+key_buffer_size         = 8M
+max_connections         = 50
+CNF
+systemctl restart mysql
+
 echo "==> Creating app directory"
 mkdir -p "$APP_DIR"
 chown "$APP_USER:$APP_USER" "$APP_DIR"
