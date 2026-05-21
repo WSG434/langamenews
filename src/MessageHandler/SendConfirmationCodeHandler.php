@@ -5,6 +5,7 @@ namespace App\MessageHandler;
 use App\Entity\ConfirmationCode;
 use App\Message\SendConfirmationCodeMessage;
 use App\Repository\ConfirmationCodeRepository;
+use App\Repository\UserTelegramRepository;
 use App\Service\Telegram\TelegramSender;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -16,6 +17,7 @@ class SendConfirmationCodeHandler
     public function __construct(
         private readonly ConfirmationCodeRepository $codes,
         private readonly TelegramSender $telegram,
+        private readonly UserTelegramRepository $userTelegramRepository,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
     ) {}
@@ -39,11 +41,17 @@ class SendConfirmationCodeHandler
 
         $context = ['codeId' => $message->codeId, 'userId' => $code->getUser()->getId()];
 
-        $handle = $code->getUser()->getTelegramHandle();
-        $mention = $handle ? "@{$handle} " : '';
-        $text = "{$mention}Your confirmation code: {$code->getCode()}";
+        $user = $code->getUser();
+        $text = "Ваш код подтверждения: {$code->getCode()}";
 
-        $this->telegram->send($text, $context);
+        $chatId = $this->userTelegramRepository->findLinkedChatId($user->getId());
+        if ($chatId !== null) {
+            $this->telegram->sendTo($chatId, $text, $context);
+        } else {
+            $handle = $user->getTelegramHandle();
+            $mention = $handle ? "@{$handle} " : '';
+            $this->telegram->send("{$mention}{$text}", $context);
+        }
 
         $code->markSent();
         $this->em->flush();
