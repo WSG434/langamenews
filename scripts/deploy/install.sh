@@ -16,7 +16,7 @@ apt-get update -y
 echo "==> Installing PHP 8.5 + extensions"
 apt-get install -y \
   php8.5-fpm php8.5-cli php8.5-mysql php8.5-xml php8.5-curl \
-  php8.5-mbstring php8.5-intl php8.5-zip php8.5-amqp php8.5-opcache
+  php8.5-mbstring php8.5-intl php8.5-zip php8.5-amqp
 
 echo "==> Installing Nginx"
 apt-get install -y nginx
