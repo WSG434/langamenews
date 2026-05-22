@@ -29,7 +29,16 @@ chown -R "$APP_USER:$APP_USER" vendor/ var/
 echo "==> Restarting services"
 systemctl restart php8.5-fpm
 systemctl restart news-consumer
+systemctl restart news-telegram
 systemctl reload nginx
+
+echo "==> Ensuring cron job is installed"
+if [ ! -f /etc/cron.d/news-import ]; then
+    cp "${APP_DIR}/deploy/cron/news-import" /etc/cron.d/news-import
+    chmod 644 /etc/cron.d/news-import
+    systemctl restart cron
+    echo "    Cron installed."
+fi
 
 echo ""
 echo "==> Release done."

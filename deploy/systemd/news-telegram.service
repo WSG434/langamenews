@@ -1,0 +1,15 @@
+[Unit]
+Description=News Telegram polling bot
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/news
+ExecStart=/usr/bin/php /var/www/news/bin/console telegram:poll --env=prod
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -21,10 +21,12 @@ cp "${APP_DIR}/deploy/php-fpm/news_stream.conf" /etc/php/8.5/fpm/pool.d/news_str
 rm -f /etc/php/8.5/fpm/pool.d/www.conf
 systemctl restart php8.5-fpm
 
-echo "==> Installing systemd unit (news-consumer)"
+echo "==> Installing systemd units"
 cp "${APP_DIR}/deploy/systemd/news-consumer.service" /etc/systemd/system/news-consumer.service
+cp "${APP_DIR}/deploy/systemd/news-telegram.service" /etc/systemd/system/news-telegram.service
 systemctl daemon-reload
 systemctl enable news-consumer
+systemctl enable news-telegram
 
 echo "==> Installing cron job (news import every 10 min)"
 cp "${APP_DIR}/deploy/cron/news-import" /etc/cron.d/news-import
