@@ -5,6 +5,7 @@ namespace App\Service\Telegram;
 use App\Entity\TelegramLoginToken;
 use App\Entity\User;
 use App\Entity\UserTelegram;
+use App\Service\CodeGenerator;
 use App\Repository\ConfirmationCodeRepository;
 use App\Repository\TelegramLoginTokenRepository;
 use App\Repository\UserTelegramRepository;
@@ -47,6 +48,7 @@ class TelegramUpdateHandler
         }
     }
 
+
     private function handleLogin(int $chatId, array $from = []): void
     {
         $userTelegram = $this->telegramRepository->findByChatId($chatId);
@@ -68,7 +70,7 @@ class TelegramUpdateHandler
             $this->em->flush();
         }
 
-        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $code = CodeGenerator::numeric();
         $token = new TelegramLoginToken($chatId, $code);
         $this->em->persist($token);
         $this->em->flush();

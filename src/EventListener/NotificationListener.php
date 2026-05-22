@@ -26,14 +26,15 @@ class NotificationListener
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {
         $user = $event->getAuthenticatedToken()->getUser();
-        $label = (string) $user;
-        $userId = $user instanceof User ? $user->getId() : null;
-
-        $payload = ['email' => $label];
-        if ($userId !== null) {
-            $payload['userId'] = $userId;
+        if (!$user instanceof User) {
+            return;
         }
+        $label = (string) $user;
+        $userId = $user->getId();
 
-        $this->dispatcher->dispatch(new NotificationMessage('user_logged_in', $payload));
+        $this->dispatcher->dispatch(new NotificationMessage('user_logged_in', [
+            'email' => $label,
+            'userId' => $userId,
+        ]));
     }
 }

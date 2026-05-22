@@ -47,7 +47,7 @@ class GuardianFetcher extends AbstractJsonApiFetcher
             if (!empty($item['webPublicationDate'])) {
                 try {
                     $publishedAt = new \DateTimeImmutable($item['webPublicationDate']);
-                } catch (\Throwable) {}
+                } catch (\Exception) {}
             }
 
             yield new NewsItemDto(

@@ -50,7 +50,7 @@ class MkRuFetcher extends AbstractHtmlFetcher
             $publishedAt = null;
             try {
                 $publishedAt = new \DateTimeImmutable("{$m[1]}-{$m[2]}-{$m[3]}");
-            } catch (\Throwable) {}
+            } catch (\Exception) {}
 
             yield new NewsItemDto(
                 title: $title,

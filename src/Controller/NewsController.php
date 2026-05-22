@@ -49,15 +49,7 @@ class NewsController extends AbstractController
         $offset = max(0, $request->query->getInt('offset', 10));
         $items = $this->newsRepository->findLatest(20, $offset, $excluded);
 
-        return $this->json(array_map(fn ($n) => [
-            'id' => $n->getId(),
-            'title' => htmlspecialchars($n->getTitle(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'summary' => htmlspecialchars($n->getSummary() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'publishedAt' => $n->getPublishedAt()?->format('d.m.Y H:i'),
-            'source' => $n->getSource(),
-            'url' => $n->getUrl(),
-            'imageUrl' => $n->getImageUrl(),
-        ], $items));
+        return $this->json(array_map($this->formatNewsEntity(...), $items));
     }
 
     #[Route('/search', name: 'app_news_search', methods: ['GET'])]
@@ -69,24 +61,13 @@ class NewsController extends AbstractController
         $q = trim($request->query->getString('q'));
 
         if ($q === '') {
-            $rows = array_map(
-                fn ($n) => [
-                    'id' => $n->getId(),
-                    'title' => htmlspecialchars($n->getTitle(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                    'summary' => htmlspecialchars($n->getSummary() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                    'publishedAt' => $n->getPublishedAt()?->format('d.m.Y H:i'),
-                    'source' => $n->getSource(),
-                    'url' => $n->getUrl(),
-                    'imageUrl' => $n->getImageUrl(),
-                ],
+            return $this->json(array_map(
+                $this->formatNewsEntity(...),
                 $this->newsRepository->findLatest(10, 0, $excluded)
-            );
-            return $this->json($rows);
+            ));
         }
 
-        $rows = $this->newsRepository->searchFullText($q, 20, $excluded);
-
-        $result = array_map(fn (array $row) => [
+        return $this->json(array_map(fn (array $row) => [
             'id' => $row['id'],
             'title' => $this->highlighter->highlight($row['title'], $q),
             'summary' => $this->highlighter->highlight($row['summary'] ?? '', $q),
@@ -94,8 +75,19 @@ class NewsController extends AbstractController
             'source' => $row['source'],
             'url' => $row['url'] ?? null,
             'imageUrl' => $row['image_url'] ?? null,
-        ], $rows);
+        ], $this->newsRepository->searchFullText($q, 20, $excluded)));
+    }
 
-        return $this->json($result);
+    private function formatNewsEntity(\App\Entity\News $news): array
+    {
+        return [
+            'id' => $news->getId(),
+            'title' => htmlspecialchars($news->getTitle(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            'summary' => htmlspecialchars($news->getSummary() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            'publishedAt' => $news->getPublishedAt()?->format('d.m.Y H:i'),
+            'source' => $news->getSource(),
+            'url' => $news->getUrl(),
+            'imageUrl' => $news->getImageUrl(),
+        ];
     }
 }

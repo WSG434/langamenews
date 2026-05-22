@@ -45,7 +45,7 @@ class NewsApiFetcher extends AbstractJsonApiFetcher
             if (!empty($article['publishedAt'])) {
                 try {
                     $publishedAt = new \DateTimeImmutable($article['publishedAt']);
-                } catch (\Throwable) {}
+                } catch (\Exception) {}
             }
 
             yield new NewsItemDto(

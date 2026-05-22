@@ -9,6 +9,7 @@ use App\Repository\ConfirmationCodeRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserTelegramRepository;
 use App\Service\Confirmation\ConfirmationService;
+use App\Service\Telegram\TelegramLinkFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -32,7 +33,7 @@ class ConfirmationController extends AbstractController
         private readonly RateLimiterFactory $codeAttemptsLimiter,
         private readonly Security $security,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly string $botName,
+        private readonly TelegramLinkFactory $telegramLinks,
     ) {}
 
     #[Route('/register/confirm/{id}', name: 'app_confirm', methods: ['GET', 'POST'])]
@@ -113,7 +114,7 @@ class ConfirmationController extends AbstractController
         return [
             'userId'          => $user->getId(),
             'telegramLinked'  => $tg?->isLinked() ?? false,
-            'telegramLinkUrl' => $tg ? "https://t.me/{$this->botName}?start={$tg->getLinkToken()}" : null,
+            'telegramLinkUrl' => $tg ? $this->telegramLinks->linkUrl($tg) : null,
         ];
     }
 

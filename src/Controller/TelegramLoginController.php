@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\TelegramLoginTokenRepository;
 use App\Repository\UserTelegramRepository;
+use App\Service\Telegram\TelegramLinkFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -13,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TelegramLoginController extends AbstractController
 {
-    public function __construct(private readonly string $botName) {}
+    public function __construct(private readonly TelegramLinkFactory $telegramLinks) {}
 
     #[Route('/login/telegram', name: 'app_telegram_login', methods: ['GET', 'POST'])]
     public function __invoke(
@@ -29,13 +30,13 @@ class TelegramLoginController extends AbstractController
 
             if ($token === null) {
                 $this->addFlash('error', 'Неверный или истёкший код.');
-                return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
+                return $this->render('security/telegram_login.html.twig', ['loginUrl' => $this->telegramLinks->loginUrl()]);
             }
 
             $userTelegram = $telegramRepo->findByChatId($token->getChatId());
             if ($userTelegram === null) {
                 $this->addFlash('error', 'Аккаунт не найден.');
-                return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
+                return $this->render('security/telegram_login.html.twig', ['loginUrl' => $this->telegramLinks->loginUrl()]);
             }
 
             $user = $userTelegram->getUser();
@@ -50,6 +51,6 @@ class TelegramLoginController extends AbstractController
                 ?? $this->redirectToRoute('app_news');
         }
 
-        return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
+        return $this->render('security/telegram_login.html.twig', ['loginUrl' => $this->telegramLinks->loginUrl()]);
     }
 }

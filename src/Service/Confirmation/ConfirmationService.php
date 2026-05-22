@@ -4,6 +4,7 @@ namespace App\Service\Confirmation;
 
 use App\Entity\ConfirmationCode;
 use App\Entity\User;
+use App\Service\CodeGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ConfirmationService
@@ -15,7 +16,7 @@ class ConfirmationService
 
     public function generate(User $user): ConfirmationCode
     {
-        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $code = CodeGenerator::numeric();
         $confirmationCode = new ConfirmationCode($user, $code, self::TTL_MINUTES);
 
         $this->em->persist($confirmationCode);

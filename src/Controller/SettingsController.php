@@ -8,14 +8,15 @@ use App\Entity\UserTelegram;
 use App\Repository\UserNotificationSettingRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserTelegramRepository;
+use App\Service\Telegram\TelegramLinkFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/settings')]
@@ -28,7 +29,7 @@ class SettingsController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly TokenStorageInterface $tokenStorage,
-        private readonly string $botName,
+        private readonly TelegramLinkFactory $telegramLinks,
     ) {}
 
     #[Route('', name: 'app_settings', methods: ['GET', 'POST'])]
@@ -49,7 +50,6 @@ class SettingsController extends AbstractController
                 return $this->redirectToRoute('app_home');
             }
 
-            // credentials action — save email, password and notification setting together
             $email = trim($request->request->get('email', ''));
             $plainPassword = $request->request->get('password', '');
 
@@ -91,7 +91,7 @@ class SettingsController extends AbstractController
         return $this->render('settings/index.html.twig', [
             'telegramEnabled' => $setting === null || $setting->isTelegramEnabled(),
             'telegramLinked'  => $userTelegram->isLinked(),
-            'telegramLinkUrl' => "https://t.me/{$this->botName}?start={$userTelegram->getLinkToken()}",
+            'telegramLinkUrl' => $this->telegramLinks->linkUrl($userTelegram),
         ]);
     }
 }

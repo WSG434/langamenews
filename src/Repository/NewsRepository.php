@@ -28,7 +28,7 @@ class NewsRepository extends ServiceEntityRepository
      */
     public function searchFullText(string $query, int $limit = 20, array $excludedSources = []): array
     {
-        $limit = max(1, (int) $limit);
+        $safeLimit = max(1, (int) $limit);
         $booleanQuery = implode(' ', array_map(
             fn (string $w) => '+' . $w . '*',
             array_filter(array_map('trim', preg_split('/\s+/', $query) ?: []))
@@ -36,9 +36,11 @@ class NewsRepository extends ServiceEntityRepository
 
         $excludeClause = '';
         $params = ['q' => $booleanQuery];
+        $types = [];
         if ($excludedSources !== []) {
             $excludeClause = 'AND source NOT IN (:excluded)';
             $params['excluded'] = $excludedSources;
+            $types['excluded'] = \Doctrine\DBAL\ArrayParameterType::STRING;
         }
 
         $sql = <<<SQL
@@ -48,12 +50,10 @@ class NewsRepository extends ServiceEntityRepository
             WHERE MATCH(title, summary, content) AGAINST(:q IN BOOLEAN MODE)
             $excludeClause
             ORDER BY score DESC
-            LIMIT $limit
+            LIMIT {$safeLimit}
         SQL;
 
-        return $this->connection->fetchAllAssociative($sql, $params, [
-            'excluded' => \Doctrine\DBAL\ArrayParameterType::STRING,
-        ]);
+        return $this->connection->fetchAllAssociative($sql, $params, $types);
     }
 
     /**

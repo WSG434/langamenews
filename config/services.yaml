@@ -91,11 +91,7 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    App\Controller\SettingsController:
-        arguments:
-            $botName: '%telegram_bot_name%'
-
-    App\Controller\TelegramLoginController:
+    App\Service\Telegram\TelegramLinkFactory:
         arguments:
             $botName: '%telegram_bot_name%'
 
@@ -103,7 +99,6 @@ services:
         arguments:
             $codeSendLimiter: '@limiter.code_send'
             $codeAttemptsLimiter: '@limiter.code_attempts'
-            $botName: '%telegram_bot_name%'
 
 when@test:
     parameters:
