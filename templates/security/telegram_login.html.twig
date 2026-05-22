@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Вход через Telegram — LanGame News{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    <div class="auth-box">
+        <a href="{{ path('app_home') }}" class="auth-logo">
+            <img src="{{ asset('images/logo.svg') }}" alt="LanGame">
+        </a>
+        <h1>Вход через Telegram</h1>
+
+        {% for msg in app.flashes('error') %}
+            <div class="flash flash-error">{{ msg }}</div>
+        {% endfor %}
+
+        <p style="color:#888;font-size:0.9rem;margin:0 0 1.25rem;">Введите email — бот пришлёт код в Telegram.</p>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" required autofocus>
+            </div>
+            <button type="submit" class="btn-submit">Получить код</button>
+        </form>
+
+        <div class="auth-foot">
+            <a href="{{ path('app_login') }}">← Обычный вход</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
