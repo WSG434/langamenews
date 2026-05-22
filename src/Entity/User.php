@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
-#[UniqueEntity(fields: ['email'], message: 'Этот email уже зарегистрирован.')]
+#[UniqueEntity(fields: ['email'], message: 'Этот email уже зарегистрирован.', ignoreNull: true)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -18,14 +18,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
-    private string $email;
+    #[ORM\Column(length: 180, unique: true, nullable: true)]
+    private ?string $email = null;
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
-    #[ORM\Column]
-    private string $password;
+    #[ORM\Column(nullable: true)]
+    private ?string $password = null;
 
     #[ORM\Column]
     private bool $isVerified = false;
@@ -41,17 +41,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
+    public function getEmail(): ?string { return $this->email; }
 
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
         $this->email = $email;
         return $this;
@@ -59,7 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        return $this->email;
+        return $this->email ?? 'id:' . $this->id;
     }
 
     public function getRoles(): array
@@ -75,10 +69,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
+    public function getPassword(): ?string { return $this->password; }
 
     public function setPassword(string $password): static
     {
@@ -86,10 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
+    public function isVerified(): bool { return $this->isVerified; }
 
     public function setIsVerified(bool $isVerified): static
     {
@@ -105,15 +93,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
+    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 
     public function eraseCredentials(): void {}
 
     public function __toString(): string
     {
-        return $this->email;
+        return $this->email ?? 'tg#' . $this->id;
     }
 }

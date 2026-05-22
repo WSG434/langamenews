@@ -3,6 +3,8 @@
 namespace App\Service\Telegram;
 
 use App\Entity\TelegramLoginToken;
+use App\Entity\User;
+use App\Entity\UserTelegram;
 use App\Repository\ConfirmationCodeRepository;
 use App\Repository\TelegramLoginTokenRepository;
 use App\Repository\UserTelegramRepository;
@@ -49,8 +51,14 @@ class TelegramUpdateHandler
         $userTelegram = $this->telegramRepository->findByChatId($chatId);
 
         if ($userTelegram === null) {
-            $this->sender->sendTo($chatId, 'Ваш Telegram не привязан ни к одному аккаунту.');
-            return;
+            $user = new User();
+            $user->setIsVerified(true);
+            $this->em->persist($user);
+
+            $userTelegram = new UserTelegram($user);
+            $userTelegram->link($chatId);
+            $this->em->persist($userTelegram);
+            $this->em->flush();
         }
 
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
