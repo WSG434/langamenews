@@ -51,7 +51,6 @@
     {% endfor %}
 
     <form method="post" action="{{ path('app_settings') }}">
-        <input type="hidden" name="action" value="credentials">
 
         <div class="settings-card">
             <strong>Email и пароль</strong>
@@ -88,17 +87,14 @@
             </label>
         </div>
 
-        <button type="submit" class="btn-save">Сохранить</button>
-        <a href="{{ path('app_news') }}" class="back-link">← К новостям</a>
-    </form>
-
-    <form method="post" action="{{ path('app_settings') }}" onsubmit="return confirm('Удалить аккаунт? Это действие необратимо.');" style="margin-top:2.5rem;">
-        <input type="hidden" name="action" value="delete_account">
-        <div class="settings-card" style="border-color:#3a1a1a;">
+        <div class="settings-card" style="border-color:#3a1a1a;margin-top:0.5rem;">
             <strong style="color:#e57373;">Удаление аккаунта</strong>
             <p>Аккаунт и все связанные данные будут удалены без возможности восстановления.</p>
-            <button type="submit" class="btn-danger">Удалить аккаунт</button>
+            <button type="submit" name="action" value="delete_account" class="btn-danger" onclick="return confirm('Удалить аккаунт? Это действие необратимо.');">Удалить аккаунт</button>
         </div>
+
+        <button type="submit" name="action" value="credentials" class="btn-save">Сохранить</button>
+        <a href="{{ path('app_news') }}" class="back-link">← К новостям</a>
     </form>
 </div>
 {% endblock %}
