@@ -15,7 +15,7 @@ class RegistrationTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
 
-        $form = $crawler->selectButton('Register')->form([
+        $form = $crawler->selectButton('Зарегистрироваться')->form([
             'registration_form[email]' => 'newuser@example.com',
             'registration_form[plainPassword][first]' => 'password123',
             'registration_form[plainPassword][second]' => 'password123',
@@ -42,7 +42,7 @@ class RegistrationTest extends WebTestCase
 
         // Register first time
         $crawler = $client->request('GET', '/register');
-        $form = $crawler->selectButton('Register')->form([
+        $form = $crawler->selectButton('Зарегистрироваться')->form([
             'registration_form[email]' => 'duplicate@example.com',
             'registration_form[plainPassword][first]' => 'password123',
             'registration_form[plainPassword][second]' => 'password123',
@@ -54,7 +54,7 @@ class RegistrationTest extends WebTestCase
 
         // Register again with same email
         $crawler = $client->request('GET', '/register');
-        $form = $crawler->selectButton('Register')->form([
+        $form = $crawler->selectButton('Зарегистрироваться')->form([
             'registration_form[email]' => 'duplicate@example.com',
             'registration_form[plainPassword][first]' => 'password123',
             'registration_form[plainPassword][second]' => 'password123',
@@ -62,7 +62,7 @@ class RegistrationTest extends WebTestCase
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorTextContains('body', 'This email is already registered.');
+        $this->assertSelectorTextContains('body', 'Этот email уже зарегистрирован.');
     }
 
     public function testWeakPasswordShowsError(): void

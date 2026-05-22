@@ -51,7 +51,7 @@ class EventDispatchTest extends WebTestCase
         $em->flush();
 
         $crawler = $client->request('GET', '/login');
-        $form = $crawler->selectButton('Login')->form([
+        $form = $crawler->selectButton('Войти')->form([
             '_username' => 'notify_login@example.com',
             '_password' => 'password123',
         ]);

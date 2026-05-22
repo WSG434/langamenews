@@ -31,7 +31,7 @@ class LoginTest extends WebTestCase
         $this->createTestUser('login@example.com', 'password123');
 
         $crawler = $client->request('GET', '/login');
-        $form = $crawler->selectButton('Login')->form([
+        $form = $crawler->selectButton('Войти')->form([
             '_username' => 'login@example.com',
             '_password' => 'password123',
         ]);
@@ -48,7 +48,7 @@ class LoginTest extends WebTestCase
         $this->createTestUser('badpass@example.com', 'password123');
 
         $crawler = $client->request('GET', '/login');
-        $form = $crawler->selectButton('Login')->form([
+        $form = $crawler->selectButton('Войти')->form([
             '_username' => 'badpass@example.com',
             '_password' => 'wrongpassword',
         ]);

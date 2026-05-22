@@ -21,7 +21,7 @@ class UserTelegram
     #[ORM\Column(length: 64, unique: true)]
     private string $linkToken;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'bigint', nullable: true)]
     private ?int $chatId = null;
 
     #[ORM\Column(nullable: true)]

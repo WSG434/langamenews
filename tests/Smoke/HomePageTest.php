@@ -12,6 +12,6 @@ class HomePageTest extends WebTestCase
         $client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'News Aggregator');
+        self::assertSelectorTextContains('h1', 'Новостной агрегатор');
     }
 }

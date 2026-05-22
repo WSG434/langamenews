@@ -16,7 +16,7 @@ class RegistrationFlowTest extends WebTestCase
         $client = static::createClient();
 
         $crawler = $client->request('GET', '/register');
-        $form = $crawler->selectButton('Register')->form([
+        $form = $crawler->selectButton('Зарегистрироваться')->form([
             'registration_form[email]' => 'flow_test@example.com',
             'registration_form[plainPassword][first]' => 'password123',
             'registration_form[plainPassword][second]' => 'password123',
@@ -46,7 +46,7 @@ class RegistrationFlowTest extends WebTestCase
         $codeId = $code->getId();
 
         $crawler = $client->request('GET', "/register/confirm/{$userId}");
-        $form = $crawler->selectButton('Confirm')->form(['code' => '999888']);
+        $form = $crawler->selectButton('Подтвердить')->form(['code' => '999888']);
         $client->submit($form);
 
         // After confirmation, user is auto-logged in and redirected to /news
@@ -72,7 +72,7 @@ class RegistrationFlowTest extends WebTestCase
         $codeId = $code->getId();
 
         $crawler = $client->request('GET', "/register/confirm/{$user->getId()}");
-        $form = $crawler->selectButton('Confirm')->form(['code' => '000000']);
+        $form = $crawler->selectButton('Подтвердить')->form(['code' => '000000']);
         $client->submit($form);
 
         $em->clear();
@@ -93,7 +93,7 @@ class RegistrationFlowTest extends WebTestCase
         $em->flush();
 
         $crawler = $client->request('GET', "/register/confirm/{$user->getId()}");
-        $form = $crawler->selectButton('Confirm')->form(['code' => '333444']);
+        $form = $crawler->selectButton('Подтвердить')->form(['code' => '333444']);
         $client->submit($form);
 
         $this->assertSelectorExists('.flash-error');

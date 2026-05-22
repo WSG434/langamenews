@@ -4,9 +4,11 @@ namespace App\Tests\Functional\Messenger;
 
 use App\Entity\ConfirmationCode;
 use App\Entity\User;
+use App\Entity\UserTelegram;
 use App\Message\SendConfirmationCodeMessage;
 use App\MessageHandler\SendConfirmationCodeHandler;
 use App\Repository\ConfirmationCodeRepository;
+use App\Repository\UserTelegramRepository;
 use App\Service\Telegram\TelegramSender;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
@@ -41,6 +43,11 @@ class SendConfirmationCodeHandlerTest extends KernelTestCase
     public function testHandlerSendsCodeAndMarksSent(): void
     {
         $user = $this->createUser();
+
+        $tg = new UserTelegram($user);
+        $tg->link(99999);
+        $this->em->persist($tg);
+
         $code = new ConfirmationCode($user, '123456');
         $this->em->persist($code);
         $this->em->flush();
@@ -52,7 +59,8 @@ class SendConfirmationCodeHandlerTest extends KernelTestCase
         });
 
         $sender = new TelegramSender($client, 'token', '12345', new NullLogger());
-        $handler = new SendConfirmationCodeHandler($this->codeRepo, $sender, $this->em, new NullLogger());
+        $telegramRepo = static::getContainer()->get(UserTelegramRepository::class);
+        $handler = new SendConfirmationCodeHandler($this->codeRepo, $sender, $telegramRepo, $this->em, new NullLogger());
         $handler(new SendConfirmationCodeMessage($code->getId()));
 
         $this->em->refresh($code);
@@ -76,7 +84,8 @@ class SendConfirmationCodeHandlerTest extends KernelTestCase
         });
 
         $sender = new TelegramSender($client, 'token', '12345', new NullLogger());
-        $handler = new SendConfirmationCodeHandler($this->codeRepo, $sender, $this->em, new NullLogger());
+        $telegramRepo = static::getContainer()->get(UserTelegramRepository::class);
+        $handler = new SendConfirmationCodeHandler($this->codeRepo, $sender, $telegramRepo, $this->em, new NullLogger());
         $handler(new SendConfirmationCodeMessage($code->getId()));
 
         $this->assertSame(0, $requestsMade);

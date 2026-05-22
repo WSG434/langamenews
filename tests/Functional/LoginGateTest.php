@@ -22,7 +22,7 @@ class LoginGateTest extends WebTestCase
         $em->flush();
 
         $crawler = $client->request('GET', '/login');
-        $form = $crawler->selectButton('Login')->form([
+        $form = $crawler->selectButton('Войти')->form([
             '_username' => 'unverified@example.com',
             '_password' => 'password123',
         ]);

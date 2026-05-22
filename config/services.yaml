@@ -10,6 +10,8 @@ parameters:
     telegram_bot_token: '%env(TELEGRAM_BOT_TOKEN)%'
     telegram_chat_id: '%env(TELEGRAM_CHAT_ID)%'
     telegram_bot_name: '%env(TELEGRAM_BOT_NAME)%'
+    telegram_mode_default: 'webhook'
+    telegram_mode: '%env(default:telegram_mode_default:TELEGRAM_MODE)%'
     sse_loop_seconds: 55
     news_api_key: '%env(default::NEWS_API_KEY)%'
     guardian_api_key: '%env(default::GUARDIAN_API_KEY)%'
@@ -32,6 +34,11 @@ services:
         arguments:
             $botToken: '%telegram_bot_token%'
             $chatId: '%telegram_chat_id%'
+
+    App\Command\TelegramPollingCommand:
+        arguments:
+            $botToken: '%telegram_bot_token%'
+            $telegramMode: '%telegram_mode%'
 
     _instanceof:
         App\News\Source\NewsSourceFetcherInterface:
