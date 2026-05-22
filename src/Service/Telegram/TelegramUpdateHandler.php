@@ -35,7 +35,12 @@ class TelegramUpdateHandler
         }
 
         if (str_starts_with($text, '/start ')) {
-            $this->handleStart($chatId, trim(substr($text, 7)));
+            $param = trim(substr($text, 7));
+            if ($param === 'login') {
+                $this->handleLogin($chatId);
+            } else {
+                $this->handleStart($chatId, $param);
+            }
         }
     }
 

@@ -9,7 +9,7 @@
         margin: 3rem auto;
         background: #1a1a1a;
         border: 1px solid #2a2a2a;
-        border-top: 3px solid #0088cc;
+        border-top: 3px solid #DC0000;
         border-radius: 4px;
         padding: 2rem;
     }
@@ -23,13 +23,13 @@
         color: #e0e0e0; font-size: 1.4rem; letter-spacing: 0.3em;
         text-align: center; outline: none; box-sizing: border-box;
     }
-    .form-group input:focus { border-color: #0088cc; }
+    .form-group input:focus { border-color: #DC0000; }
     .btn-submit {
         width: 100%; padding: 0.65rem;
-        background: #0088cc; color: #fff; border: none;
+        background: #DC0000; color: #fff; border: none;
         border-radius: 3px; font-size: 1rem; cursor: pointer;
     }
-    .btn-submit:hover { background: #006ea6; }
+    .btn-submit:hover { background: #b00000; }
     .tg-hint { margin: 0 0 1.5rem; padding: 1rem; background: #0d1f2d; border: 1px solid #1a4a6e; border-radius: 4px; }
     .tg-hint p { margin: 0 0 0.75rem; color: #90caf9; font-size: 0.88rem; }
     .btn-tg { display: block; text-align: center; padding: 0.55rem; background: #0088cc; color: #fff; border-radius: 3px; text-decoration: none; font-size: 0.9rem; }
@@ -43,15 +43,15 @@
 {% block body %}
 <div class="auth-wrap">
     <h1>Вход через Telegram</h1>
-    <p>Откройте бота и отправьте команду <strong style="color:#90caf9;">/login</strong> — он пришлёт вам код.</p>
+    <p>Нажмите кнопку ниже, откройте бота и нажмите <strong style="color:#90caf9;">Start</strong> — он пришлёт вам код.</p>
 
     {% for msg in app.flashes('error') %}
         <div class="flash flash-error">{{ msg }}</div>
     {% endfor %}
 
     <div class="tg-hint">
-        <p>Нажмите кнопку ниже, затем отправьте /login боту.</p>
-        <a href="https://t.me/{{ botName }}" target="_blank" class="btn-tg">Открыть Telegram-бота</a>
+        <p>Нажмите кнопку ниже и нажмите Start в боте.</p>
+        <a href="https://t.me/{{ botName }}?start=login" target="_blank" class="btn-tg">Открыть Telegram-бота</a>
     </div>
 
     <form method="post">
