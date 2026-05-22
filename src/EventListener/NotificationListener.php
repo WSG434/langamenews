@@ -26,10 +26,10 @@ class NotificationListener
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {
         $user = $event->getAuthenticatedToken()->getUser();
-        $email = method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : (string) $user;
+        $label = (string) $user;
         $userId = $user instanceof User ? $user->getId() : null;
 
-        $payload = ['email' => $email];
+        $payload = ['email' => $label];
         if ($userId !== null) {
             $payload['userId'] = $userId;
         }
