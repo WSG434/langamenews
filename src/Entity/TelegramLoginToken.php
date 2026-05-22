@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'telegram_login_tokens')]
 class TelegramLoginToken
 {
+    public const TTL_MINUTES = 1;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -26,7 +27,7 @@ class TelegramLoginToken
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $usedAt = null;
 
-    public function __construct(int $chatId, string $code, int $ttlMinutes = 10)
+    public function __construct(int $chatId, string $code, int $ttlMinutes = self::TTL_MINUTES)
     {
         $this->chatId = $chatId;
         $this->code = $code;

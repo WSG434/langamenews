@@ -69,7 +69,7 @@ class TelegramUpdateHandler
         }
 
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $token = new TelegramLoginToken($chatId, $code, 1);
+        $token = new TelegramLoginToken($chatId, $code);
         $this->em->persist($token);
         $this->em->flush();
 
