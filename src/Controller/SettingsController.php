@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -22,6 +23,7 @@ class SettingsController extends AbstractController
         private readonly UserNotificationSettingRepository $settingRepository,
         private readonly UserTelegramRepository $telegramRepository,
         private readonly EntityManagerInterface $em,
+        private readonly UserPasswordHasherInterface $hasher,
         private readonly string $botName,
     ) {}
 
@@ -33,13 +35,36 @@ class SettingsController extends AbstractController
         $setting = $this->settingRepository->findForUser($user);
 
         if ($request->isMethod('POST')) {
+            $action = $request->request->get('action');
+
+            if ($action === 'credentials') {
+                $email = trim($request->request->get('email', ''));
+                $plainPassword = $request->request->get('password', '');
+
+                if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $this->addFlash('error', 'Некорректный email.');
+                    return $this->redirectToRoute('app_settings');
+                }
+
+                if ($email !== '') {
+                    $user->setEmail($email);
+                }
+                if ($plainPassword !== '') {
+                    $user->setPassword($this->hasher->hashPassword($user, $plainPassword));
+                }
+
+                $this->em->flush();
+                $this->addFlash('success', 'Данные сохранены.');
+                return $this->redirectToRoute('app_settings');
+            }
+
             if ($setting === null) {
                 $setting = new UserNotificationSetting($user);
                 $this->em->persist($setting);
             }
             $setting->setTelegramEnabled($request->request->getBoolean('telegram_enabled'));
             $this->em->flush();
-            $this->addFlash('success', 'Settings saved.');
+            $this->addFlash('success', 'Настройки сохранены.');
             return $this->redirectToRoute('app_settings');
         }
 
