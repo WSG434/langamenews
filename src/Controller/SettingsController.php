@@ -41,32 +41,6 @@ class SettingsController extends AbstractController
         if ($request->isMethod('POST')) {
             $action = $request->request->get('action');
 
-            if ($action === 'credentials') {
-                $email = trim($request->request->get('email', ''));
-                $plainPassword = $request->request->get('password', '');
-
-                if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $this->addFlash('error', 'Некорректный email.');
-                    return $this->redirectToRoute('app_settings');
-                }
-
-                if ($email !== '' && $email !== $user->getEmail()) {
-                    $existing = $this->userRepository->findOneBy(['email' => $email]);
-                    if ($existing !== null) {
-                        $this->addFlash('error', 'Этот email уже занят.');
-                        return $this->redirectToRoute('app_settings');
-                    }
-                    $user->setEmail($email);
-                }
-                if ($plainPassword !== '') {
-                    $user->setPassword($this->hasher->hashPassword($user, $plainPassword));
-                }
-
-                $this->em->flush();
-                $this->addFlash('success', 'Данные сохранены.');
-                return $this->redirectToRoute('app_settings');
-            }
-
             if ($action === 'delete_account') {
                 $this->tokenStorage->setToken(null);
                 $request->getSession()->invalidate();
@@ -75,11 +49,33 @@ class SettingsController extends AbstractController
                 return $this->redirectToRoute('app_home');
             }
 
+            // credentials action — save email, password and notification setting together
+            $email = trim($request->request->get('email', ''));
+            $plainPassword = $request->request->get('password', '');
+
+            if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', 'Некорректный email.');
+                return $this->redirectToRoute('app_settings');
+            }
+
+            if ($email !== '' && $email !== $user->getEmail()) {
+                $existing = $this->userRepository->findOneBy(['email' => $email]);
+                if ($existing !== null) {
+                    $this->addFlash('error', 'Этот email уже занят.');
+                    return $this->redirectToRoute('app_settings');
+                }
+                $user->setEmail($email);
+            }
+            if ($plainPassword !== '') {
+                $user->setPassword($this->hasher->hashPassword($user, $plainPassword));
+            }
+
             if ($setting === null) {
                 $setting = new UserNotificationSetting($user);
                 $this->em->persist($setting);
             }
             $setting->setTelegramEnabled($request->request->getBoolean('telegram_enabled'));
+
             $this->em->flush();
             $this->addFlash('success', 'Настройки сохранены.');
             return $this->redirectToRoute('app_settings');
