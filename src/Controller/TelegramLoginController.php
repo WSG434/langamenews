@@ -38,10 +38,15 @@ class TelegramLoginController extends AbstractController
                 return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
             }
 
+            $user = $userTelegram->getUser();
+
             $token->markUsed();
+            if (!$user->isVerified()) {
+                $user->setIsVerified(true);
+            }
             $em->flush();
 
-            return $security->login($userTelegram->getUser(), 'form_login', 'main')
+            return $security->login($user, 'form_login', 'main')
                 ?? $this->redirectToRoute('app_news');
         }
 
