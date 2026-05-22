@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\UserNotificationSetting;
 use App\Entity\UserTelegram;
 use App\Repository\UserNotificationSettingRepository;
+use App\Repository\UserRepository;
 use App\Repository\UserTelegramRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,6 +23,7 @@ class SettingsController extends AbstractController
     public function __construct(
         private readonly UserNotificationSettingRepository $settingRepository,
         private readonly UserTelegramRepository $telegramRepository,
+        private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly string $botName,
@@ -46,7 +48,12 @@ class SettingsController extends AbstractController
                     return $this->redirectToRoute('app_settings');
                 }
 
-                if ($email !== '') {
+                if ($email !== '' && $email !== $user->getEmail()) {
+                    $existing = $this->userRepository->findOneBy(['email' => $email]);
+                    if ($existing !== null) {
+                        $this->addFlash('error', 'Этот email уже занят.');
+                        return $this->redirectToRoute('app_settings');
+                    }
                     $user->setEmail($email);
                 }
                 if ($plainPassword !== '') {
