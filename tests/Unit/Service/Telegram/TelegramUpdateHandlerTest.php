@@ -32,7 +32,7 @@ class TelegramUpdateHandlerTest extends TestCase
 
     public function testHandleLoginAutoRegistersNewUser(): void
     {
-        $telegramRepo = $this->createMock(UserTelegramRepository::class);
+        $telegramRepo = $this->createStub(UserTelegramRepository::class);
         $telegramRepo->method('findByChatId')->willReturn(null);
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -53,7 +53,7 @@ class TelegramUpdateHandlerTest extends TestCase
         $tg = new UserTelegram($user);
         $tg->link(12345);
 
-        $telegramRepo = $this->createMock(UserTelegramRepository::class);
+        $telegramRepo = $this->createStub(UserTelegramRepository::class);
         $telegramRepo->method('findByChatId')->willReturn($tg);
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -73,7 +73,7 @@ class TelegramUpdateHandlerTest extends TestCase
         $telegramRepo = $this->createMock(UserTelegramRepository::class);
         $telegramRepo->expects($this->never())->method('findByChatId');
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $sender = $this->createMock(TelegramSender::class);
         $sender->expects($this->never())->method('sendTo');
 
