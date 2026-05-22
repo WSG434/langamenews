@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/settings')]
@@ -26,6 +27,7 @@ class SettingsController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly string $botName,
     ) {}
 
@@ -63,6 +65,14 @@ class SettingsController extends AbstractController
                 $this->em->flush();
                 $this->addFlash('success', 'Данные сохранены.');
                 return $this->redirectToRoute('app_settings');
+            }
+
+            if ($action === 'delete_account') {
+                $this->tokenStorage->setToken(null);
+                $request->getSession()->invalidate();
+                $this->em->remove($user);
+                $this->em->flush();
+                return $this->redirectToRoute('app_home');
             }
 
             if ($setting === null) {

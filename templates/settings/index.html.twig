@@ -91,5 +91,14 @@
         <button type="submit" class="btn-save">Сохранить</button>
         <a href="{{ path('app_news') }}" class="back-link">← К новостям</a>
     </form>
+
+    <form method="post" action="{{ path('app_settings') }}" onsubmit="return confirm('Удалить аккаунт? Это действие необратимо.');">
+        <input type="hidden" name="action" value="delete_account">
+        <div class="settings-card" style="border-color:#3a1a1a;">
+            <strong style="color:#e57373;">Удаление аккаунта</strong>
+            <p>Аккаунт и все связанные данные будут удалены без возможности восстановления.</p>
+            <button type="submit" style="padding:0.5rem 1.2rem;background:transparent;color:#e57373;border:1px solid #5e2e2e;border-radius:3px;cursor:pointer;font-size:0.9rem;">Удалить аккаунт</button>
+        </div>
+    </form>
 </div>
 {% endblock %}
