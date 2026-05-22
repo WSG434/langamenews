@@ -41,13 +41,17 @@ class TelegramNotificationSender implements NotificationSenderInterface
         try {
             $text = $this->format($message);
             $userId = $message->payload['userId'] ?? null;
-            $chatId = $userId ? $this->userTelegramRepository->findLinkedChatId($userId) : null;
+            $isUserEvent = in_array($message->type, ['user_registered', 'user_logged_in'], true);
 
-            if ($chatId !== null) {
-                $this->telegram->sendTo($chatId, $text, ['notification_type' => $message->type]);
-            } else {
-                $this->telegram->send($text, ['notification_type' => $message->type]);
+            if (!$isUserEvent && $userId !== null) {
+                $chatId = $this->userTelegramRepository->findLinkedChatId($userId);
+                if ($chatId !== null) {
+                    $this->telegram->sendTo($chatId, $text, ['notification_type' => $message->type]);
+                    return;
+                }
             }
+
+            $this->telegram->send($text, ['notification_type' => $message->type]);
         } catch (\Throwable $e) {
             $this->logger->error('Failed to send Telegram notification', [
                 'type' => $message->type,

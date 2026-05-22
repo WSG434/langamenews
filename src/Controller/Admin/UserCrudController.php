@@ -11,6 +11,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 
 class UserCrudController extends AbstractCrudController
@@ -31,7 +33,10 @@ class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield EmailField::new('email');
+        yield EmailField::new('email')->setRequired(false);
+        yield TextField::new('telegramHandle', 'Telegram @username')->setRequired(false);
+        yield IntegerField::new('telegramChatId', 'Telegram Chat ID')->hideOnForm()->onlyOnIndex();
+        yield BooleanField::new('telegramLinked', 'TG linked')->hideOnForm()->onlyOnIndex();
         yield ChoiceField::new('roles')
             ->setChoices(['Admin' => 'ROLE_ADMIN', 'User' => 'ROLE_USER'])
             ->allowMultipleChoices()

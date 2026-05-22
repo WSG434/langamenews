@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\UserTelegram;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -32,6 +33,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 64, nullable: true, unique: true)]
     private ?string $telegramHandle = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: UserTelegram::class)]
+    private ?UserTelegram $userTelegram = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -86,6 +90,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getTelegramHandle(): ?string { return $this->telegramHandle; }
+
+    public function getTelegramChatId(): ?int { return $this->userTelegram?->getChatId(); }
+
+    public function isTelegramLinked(): bool { return $this->userTelegram?->isLinked() ?? false; }
 
     public function setTelegramHandle(?string $handle): static
     {
