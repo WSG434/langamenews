@@ -25,10 +25,3 @@
 | RabbitMQ | 4.x |
 | nginx | 1.27 |
 | EasyAdmin | 4.x |
-
-## Тесты
-
-```bash
-make test
-```
-91 тест: smoke, functional, unit. Тестовая БД — `news_test`, миграции применяются автоматически.
