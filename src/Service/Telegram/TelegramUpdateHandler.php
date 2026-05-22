@@ -58,7 +58,7 @@ class TelegramUpdateHandler
         $this->em->persist($token);
         $this->em->flush();
 
-        $this->sender->sendTo($chatId, "Ваш код для входа: {$code}\n\nВведите его на странице входа через Telegram. Код действителен 10 минут.");
+        $this->sender->sendTo($chatId, "Ваш код для входа: {$code}");
     }
 
     private function handleStart(int $chatId, string $token): void
