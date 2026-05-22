@@ -95,6 +95,10 @@ services:
         arguments:
             $botName: '%telegram_bot_name%'
 
+    App\Controller\TelegramLoginController:
+        arguments:
+            $botName: '%telegram_bot_name%'
+
     App\Controller\ConfirmationController:
         arguments:
             $codeSendLimiter: '@limiter.code_send'

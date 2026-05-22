@@ -19,6 +19,11 @@ class UserTelegramRepository extends ServiceEntityRepository
         return $this->findOneBy(['linkToken' => $token]);
     }
 
+    public function findByChatId(int $chatId): ?UserTelegram
+    {
+        return $this->findOneBy(['chatId' => $chatId]);
+    }
+
     public function findForUser(User $user): ?UserTelegram
     {
         return $this->findOneBy(['user' => $user]);

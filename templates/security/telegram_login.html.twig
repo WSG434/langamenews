@@ -14,14 +14,22 @@
             <div class="flash flash-error">{{ msg }}</div>
         {% endfor %}
 
-        <p style="color:#888;font-size:0.9rem;margin:0 0 1.25rem;">Введите email — бот пришлёт код в Telegram.</p>
+        <div class="tg-hint" style="margin:0 0 1.5rem;padding:1rem;background:#0d1f2d;border:1px solid #1a4a6e;border-radius:4px;">
+            <p style="margin:0 0 0.75rem;color:#90caf9;font-size:0.88rem;">Откройте бота и введите <strong>/login</strong> — он пришлёт код.</p>
+            <a href="https://t.me/{{ botName }}" target="_blank"
+               style="display:block;text-align:center;padding:0.55rem;background:#0088cc;color:#fff;border-radius:3px;text-decoration:none;font-size:0.9rem;">
+                Открыть Telegram-бота
+            </a>
+        </div>
 
         <form method="post">
             <div class="form-group">
-                <label for="email">Email</label>
-                <input id="email" type="email" name="email" required autofocus>
+                <label for="code">Код из Telegram</label>
+                <input id="code" type="text" name="code" maxlength="6"
+                       inputmode="numeric" pattern="\d{6}" autofocus required
+                       style="letter-spacing:0.3em;text-align:center;font-size:1.4rem;">
             </div>
-            <button type="submit" class="btn-submit">Получить код</button>
+            <button type="submit" class="btn-submit">Войти</button>
         </form>
 
         <div class="auth-foot">

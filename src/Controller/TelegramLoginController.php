@@ -2,12 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Repository\ConfirmationCodeRepository;
-use App\Repository\UserRepository;
+use App\Repository\TelegramLoginTokenRepository;
 use App\Repository\UserTelegramRepository;
-use App\Service\Confirmation\ConfirmationService;
-use App\Service\Telegram\TelegramSender;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -17,73 +13,38 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TelegramLoginController extends AbstractController
 {
+    public function __construct(private readonly string $botName) {}
+
     #[Route('/login/telegram', name: 'app_telegram_login', methods: ['GET', 'POST'])]
-    public function request(
+    public function __invoke(
         Request $request,
-        UserRepository $users,
+        TelegramLoginTokenRepository $tokens,
         UserTelegramRepository $telegramRepo,
-        ConfirmationService $confirmationService,
-        TelegramSender $telegram,
-    ): Response {
-        if ($request->isMethod('POST')) {
-            $email = trim($request->request->get('email', ''));
-            $user = $users->findOneBy(['email' => $email]);
-
-            if ($user !== null && $user->isVerified()) {
-                $tg = $telegramRepo->findForUser($user);
-
-                if ($tg !== null && $tg->isLinked()) {
-                    $code = $confirmationService->generate($user);
-                    $telegram->sendTo($tg->getChatId(), "Ваш код для входа: {$code->getCode()}");
-
-                    return $this->redirectToRoute('app_telegram_login_verify', ['id' => $user->getId()]);
-                }
-            }
-
-            // Не раскрываем причину отказа
-            $this->addFlash('error', 'Не удалось отправить код. Убедитесь, что email верный и Telegram привязан.');
-        }
-
-        return $this->render('security/telegram_login.html.twig');
-    }
-
-    #[Route('/login/telegram/verify/{id}', name: 'app_telegram_login_verify', methods: ['GET', 'POST'])]
-    public function verify(
-        int $id,
-        Request $request,
-        UserRepository $users,
-        ConfirmationCodeRepository $codes,
-        ConfirmationService $confirmationService,
+        EntityManagerInterface $em,
         Security $security,
     ): Response {
-        $user = $users->find($id);
-        if ($user === null) {
-            throw $this->createNotFoundException();
-        }
-
         if ($request->isMethod('POST')) {
             $input = trim($request->request->get('code', ''));
-            $code = $codes->findActiveForUser($user);
+            $token = $tokens->findValidByCode($input);
 
-            if ($code === null) {
-                $this->addFlash('error', 'Код не найден или истёк. Запросите новый.');
-                return $this->render('security/telegram_login_verify.html.twig', ['userId' => $id]);
+            if ($token === null) {
+                $this->addFlash('error', 'Неверный или истёкший код.');
+                return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
             }
 
-            try {
-                $confirmationService->validate($code, $input);
-                return $security->login($user, 'form_login', 'main')
-                    ?? $this->redirectToRoute('app_news');
-            } catch (\DomainException $e) {
-                $messages = [
-                    'expired' => 'Код истёк. Запросите новый.',
-                    'too_many_attempts' => 'Слишком много попыток. Запросите новый код.',
-                    'invalid' => 'Неверный код.',
-                ];
-                $this->addFlash('error', $messages[$e->getMessage()] ?? 'Неверный код.');
+            $userTelegram = $telegramRepo->findByChatId($token->getChatId());
+            if ($userTelegram === null) {
+                $this->addFlash('error', 'Аккаунт не найден.');
+                return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
             }
+
+            $token->markUsed();
+            $em->flush();
+
+            return $security->login($userTelegram->getUser(), 'form_login', 'main')
+                ?? $this->redirectToRoute('app_news');
         }
 
-        return $this->render('security/telegram_login_verify.html.twig', ['userId' => $id]);
+        return $this->render('security/telegram_login.html.twig', ['botName' => $this->botName]);
     }
 }

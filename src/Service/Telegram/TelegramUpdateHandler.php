@@ -2,7 +2,9 @@
 
 namespace App\Service\Telegram;
 
+use App\Entity\TelegramLoginToken;
 use App\Repository\ConfirmationCodeRepository;
+use App\Repository\TelegramLoginTokenRepository;
 use App\Repository\UserTelegramRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -12,6 +14,7 @@ class TelegramUpdateHandler
     public function __construct(
         private readonly UserTelegramRepository $telegramRepository,
         private readonly ConfirmationCodeRepository $confirmationCodes,
+        private readonly TelegramLoginTokenRepository $loginTokens,
         private readonly EntityManagerInterface $em,
         private readonly TelegramSender $sender,
         private readonly LoggerInterface $logger,
@@ -22,11 +25,39 @@ class TelegramUpdateHandler
         $text = $update['message']['text'] ?? '';
         $chatId = $update['message']['chat']['id'] ?? null;
 
-        if ($chatId === null || !str_starts_with($text, '/start ')) {
+        if ($chatId === null) {
             return;
         }
 
-        $token = trim(substr($text, 7));
+        if ($text === '/login') {
+            $this->handleLogin($chatId);
+            return;
+        }
+
+        if (str_starts_with($text, '/start ')) {
+            $this->handleStart($chatId, trim(substr($text, 7)));
+        }
+    }
+
+    private function handleLogin(int $chatId): void
+    {
+        $userTelegram = $this->telegramRepository->findByChatId($chatId);
+
+        if ($userTelegram === null) {
+            $this->sender->sendTo($chatId, 'Ваш Telegram не привязан ни к одному аккаунту.');
+            return;
+        }
+
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $token = new TelegramLoginToken($chatId, $code);
+        $this->em->persist($token);
+        $this->em->flush();
+
+        $this->sender->sendTo($chatId, "Ваш код для входа: {$code}\n\nВведите его на странице входа через Telegram. Код действителен 10 минут.");
+    }
+
+    private function handleStart(int $chatId, string $token): void
+    {
         $userTelegram = $this->telegramRepository->findByToken($token);
 
         if ($userTelegram === null) {
