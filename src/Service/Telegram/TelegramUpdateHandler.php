@@ -26,33 +26,40 @@ class TelegramUpdateHandler
     {
         $text = $update['message']['text'] ?? '';
         $chatId = $update['message']['chat']['id'] ?? null;
+        $from = $update['message']['from'] ?? [];
 
         if ($chatId === null) {
             return;
         }
 
         if ($text === '/login') {
-            $this->handleLogin($chatId);
+            $this->handleLogin($chatId, $from);
             return;
         }
 
         if (str_starts_with($text, '/start ')) {
             $param = trim(substr($text, 7));
             if ($param === 'login') {
-                $this->handleLogin($chatId);
+                $this->handleLogin($chatId, $from);
             } else {
                 $this->handleStart($chatId, $param);
             }
         }
     }
 
-    private function handleLogin(int $chatId): void
+    private function handleLogin(int $chatId, array $from = []): void
     {
         $userTelegram = $this->telegramRepository->findByChatId($chatId);
 
         if ($userTelegram === null) {
             $user = new User();
             $user->setIsVerified(true);
+
+            $handle = $from['username'] ?? $from['first_name'] ?? null;
+            if ($handle !== null) {
+                $user->setTelegramHandle($handle);
+            }
+
             $this->em->persist($user);
 
             $userTelegram = new UserTelegram($user);
