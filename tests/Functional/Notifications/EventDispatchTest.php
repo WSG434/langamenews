@@ -29,7 +29,9 @@ class EventDispatchTest extends WebTestCase
         $em->persist($code);
         $em->flush();
 
-        $client->request('POST', "/register/confirm/{$user->getId()}", ['code' => '123456']);
+        $crawler = $client->request('GET', "/register/confirm/{$user->getId()}");
+        $form = $crawler->selectButton('Подтвердить')->form(['code' => '123456']);
+        $client->submit($form);
 
         $em->clear();
         $notifications = $em->getRepository(Notification::class)->findBy(['type' => 'user_registered']);

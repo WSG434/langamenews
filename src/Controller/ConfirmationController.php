@@ -41,12 +41,7 @@ class ConfirmationController extends AbstractController
     {
         $user = $this->findUserOr404($id);
 
-        if ($request->getSession()->get('pending_confirmation_user_id') !== $id) {
-            throw $this->createAccessDeniedException();
-        }
-
         if ($user->isVerified()) {
-            $request->getSession()->remove('pending_confirmation_user_id');
             $this->addFlash('success', 'Your account is already verified. Please log in.');
             return $this->redirectToRoute('app_login');
         }
@@ -71,7 +66,6 @@ class ConfirmationController extends AbstractController
 
             try {
                 $this->confirmationService->validate($code, $input);
-                $request->getSession()->remove('pending_confirmation_user_id');
                 $this->dispatcher->dispatch(new UserRegisteredEvent($user));
                 $this->addFlash('success', 'Account confirmed! Welcome!');
                 return $this->security->login($user, 'form_login', 'main')
@@ -92,10 +86,6 @@ class ConfirmationController extends AbstractController
     #[Route('/register/confirm/{id}/resend', name: 'app_confirm_resend', methods: ['POST'])]
     public function resend(int $id, Request $request): Response
     {
-        if ($request->getSession()->get('pending_confirmation_user_id') !== $id) {
-            throw $this->createAccessDeniedException();
-        }
-
         if (!$this->isCsrfTokenValid('resend_' . $id, $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }

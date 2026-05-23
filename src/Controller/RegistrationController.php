@@ -48,7 +48,6 @@ class RegistrationController extends AbstractController
             $code = $confirmationService->generate($user);
             $bus->dispatch(new SendConfirmationCodeMessage($code->getId()));
 
-            $request->getSession()->set('pending_confirmation_user_id', $user->getId());
             return $this->redirectToRoute('app_confirm', ['id' => $user->getId()]);
         }
 
