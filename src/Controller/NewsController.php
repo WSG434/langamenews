@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Repository\NewsRepository;
 use App\Repository\NewsSourceRepository;
 use App\Repository\UserNewsSourcePreferenceRepository;
-use App\Service\Search\Highlighter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,6 @@ class NewsController extends AbstractController
         private readonly NewsRepository $newsRepository,
         private readonly NewsSourceRepository $sourceRepository,
         private readonly UserNewsSourcePreferenceRepository $preferenceRepository,
-        private readonly Highlighter $highlighter,
     ) {}
 
     #[Route('', name: 'app_news', methods: ['GET'])]
@@ -69,8 +67,8 @@ class NewsController extends AbstractController
 
         return $this->json(array_map(fn (array $row) => [
             'id' => $row['id'],
-            'title' => $this->highlighter->highlight($row['title'], $q),
-            'summary' => $this->highlighter->highlight($row['summary'] ?? '', $q),
+            'title' => $row['title'],
+            'summary' => $row['summary'] ?? '',
             'publishedAt' => $row['published_at'] ? (new \DateTimeImmutable($row['published_at']))->format('d.m.Y H:i') : null,
             'source' => $row['source'],
             'url' => $row['url'] ?? null,
@@ -82,8 +80,8 @@ class NewsController extends AbstractController
     {
         return [
             'id' => $news->getId(),
-            'title' => htmlspecialchars($news->getTitle(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'summary' => htmlspecialchars($news->getSummary() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            'title' => $news->getTitle(),
+            'summary' => $news->getSummary() ?? '',
             'publishedAt' => $news->getPublishedAt()?->format('d.m.Y H:i'),
             'source' => $news->getSource(),
             'url' => $news->getUrl(),
