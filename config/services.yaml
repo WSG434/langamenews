@@ -12,6 +12,7 @@ parameters:
     telegram_bot_name: '%env(TELEGRAM_BOT_NAME)%'
     telegram_mode_default: 'webhook'
     telegram_mode: '%env(default:telegram_mode_default:TELEGRAM_MODE)%'
+    telegram_webhook_secret: '%env(default::TELEGRAM_WEBHOOK_SECRET)%'
     sse_loop_seconds: 55
     news_api_key: '%env(default::NEWS_API_KEY)%'
     guardian_api_key: '%env(default::GUARDIAN_API_KEY)%'
@@ -94,6 +95,10 @@ services:
     App\Service\Telegram\TelegramLinkFactory:
         arguments:
             $botName: '%telegram_bot_name%'
+
+    App\Controller\TelegramWebhookController:
+        arguments:
+            $webhookSecret: '%telegram_webhook_secret%'
 
     App\Controller\ConfirmationController:
         arguments:

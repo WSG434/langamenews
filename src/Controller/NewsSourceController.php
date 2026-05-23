@@ -9,6 +9,7 @@ use App\Repository\UserNewsSourcePreferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -43,8 +44,12 @@ class NewsSourceController extends AbstractController
     }
 
     #[Route('/{id}/toggle', name: 'app_news_sources_toggle', methods: ['POST'])]
-    public function toggle(int $id): JsonResponse
+    public function toggle(int $id, Request $request): JsonResponse
     {
+        if (!$this->isCsrfTokenValid('toggle_source', $request->headers->get('X-CSRF-Token'))) {
+            return $this->json(['error' => 'Invalid CSRF token'], Response::HTTP_FORBIDDEN);
+        }
+
         /** @var User $user */
         $user = $this->getUser();
         $source = $this->sourceRepository->find($id);

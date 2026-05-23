@@ -98,7 +98,7 @@
 <div class="page-container">
     <h1>Последние новости</h1>
 
-    <div class="source-chips" id="source-chips">
+    <div class="source-chips" id="source-chips" data-csrf="{{ csrf_token('toggle_source') }}">
         {% for source in sources %}
             <span class="chip {% if source.code not in disabledSourceCodes %}active{% endif %}"
                   data-code="{{ source.code }}"
@@ -149,8 +149,10 @@
 (function () {
     var input = document.getElementById('q');
     var list = document.getElementById('news-list');
+    var chipsEl = document.getElementById('source-chips');
     var sentinel = document.getElementById('scroll-sentinel');
     var loader = document.getElementById('loading-indicator');
+    var csrfToken = chipsEl ? chipsEl.dataset.csrf : '';
     var timer = null;
     var offset = {{ news|length }};
     var loading = false;
@@ -161,22 +163,50 @@
         var li = document.createElement('li');
         li.className = 'news-item';
         li.dataset.source = n.source || '';
-        var img = n.imageUrl
-            ? '<img class="news-item__img" src="' + n.imageUrl + '" alt="" loading="lazy">'
-            : '';
-        var titleHtml = n.url
-            ? '<a href="' + n.url + '" target="_blank" rel="noopener">' + n.title + '</a>'
-            : n.title;
-        var summary = n.summary
-            ? '<p class="news-item__summary">' + n.summary + '</p>'
-            : '';
-        li.innerHTML = img
-            + '<div class="news-item__body">'
-            + '<h3 class="news-item__title">' + titleHtml + '</h3>'
-            + summary
-            + '<div class="news-item__meta"><span class="news-item__source">' + (n.source || '') + '</span>'
-            + (n.publishedAt || '—') + '</div>'
-            + '</div>';
+
+        if (n.imageUrl) {
+            var img = document.createElement('img');
+            img.className = 'news-item__img';
+            img.src = n.imageUrl;
+            img.alt = '';
+            img.loading = 'lazy';
+            li.appendChild(img);
+        }
+
+        var body = document.createElement('div');
+        body.className = 'news-item__body';
+
+        var h3 = document.createElement('h3');
+        h3.className = 'news-item__title';
+        if (n.url) {
+            var a = document.createElement('a');
+            a.href = n.url;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = n.title || '';
+            h3.appendChild(a);
+        } else {
+            h3.textContent = n.title || '';
+        }
+        body.appendChild(h3);
+
+        if (n.summary) {
+            var p = document.createElement('p');
+            p.className = 'news-item__summary';
+            p.textContent = n.summary;
+            body.appendChild(p);
+        }
+
+        var meta = document.createElement('div');
+        meta.className = 'news-item__meta';
+        var sourceSpan = document.createElement('span');
+        sourceSpan.className = 'news-item__source';
+        sourceSpan.textContent = n.source || '';
+        meta.appendChild(sourceSpan);
+        meta.appendChild(document.createTextNode(' ' + (n.publishedAt || '—')));
+        body.appendChild(meta);
+
+        li.appendChild(body);
         return li;
     }
 
@@ -237,7 +267,7 @@
             chip.classList.add('loading');
             fetch('/news/sources/' + chip.dataset.id + '/toggle', {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken }
             })
             .then(function (r) { return r.json(); })
             .then(function (data) {

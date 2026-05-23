@@ -51,6 +51,7 @@
     {% endfor %}
 
     <form method="post" action="{{ path('app_settings') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('settings') }}">
 
         <div class="settings-card">
             <strong>Email и пароль</strong>

@@ -44,7 +44,7 @@ class ConfirmationService
 
         $code->incrementAttempts();
 
-        if ($code->getCode() !== $input) {
+        if (!hash_equals($code->getCode(), $input)) {
             $this->em->flush();
             throw new \DomainException('invalid');
         }

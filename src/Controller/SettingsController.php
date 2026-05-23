@@ -40,6 +40,10 @@ class SettingsController extends AbstractController
         $setting = $this->settingRepository->findForUser($user);
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('settings', $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException('Invalid CSRF token.');
+            }
+
             $action = $request->request->get('action');
 
             if ($action === 'delete_account') {
