@@ -92,7 +92,7 @@ class NewsControllerTest extends WebTestCase
         $this->assertCount(10, $data);
     }
 
-    public function testSearchResultContainsMark(): void
+    public function testSearchReturnsMatchingResults(): void
     {
         $client = static::createClient();
         $user = $this->createVerifiedUser();
@@ -108,12 +108,10 @@ class NewsControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
-        // If FULLTEXT found results, they must contain highlight marks
+        $this->assertIsArray($data);
         if (!empty($data)) {
-            $this->assertStringContainsString('<mark>', $data[0]['title']);
-        } else {
-            // FULLTEXT may skip short result sets — acceptable fallback
-            $this->assertIsArray($data);
+            $this->assertArrayHasKey('title', $data[0]);
+            $this->assertStringNotContainsString('<mark>', $data[0]['title']);
         }
     }
 
