@@ -67,7 +67,10 @@ class NewsSourcePreferenceTest extends WebTestCase
         $source = $this->createSource($em, 'test_src_b');
 
         $client->loginUser($user);
-        $client->request('POST', '/news/sources/' . $source->getId() . '/toggle');
+        $csrfToken = $this->fetchToggleCsrfToken($client);
+        $client->request('POST', '/news/sources/' . $source->getId() . '/toggle', [], [], [
+            'HTTP_X_CSRF_TOKEN' => $csrfToken,
+        ]);
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
@@ -90,10 +93,21 @@ class NewsSourcePreferenceTest extends WebTestCase
         $source = $this->createSource($em, 'test_src_c');
 
         $client->loginUser($user);
-        $client->request('POST', '/news/sources/' . $source->getId() . '/toggle');
-        $client->request('POST', '/news/sources/' . $source->getId() . '/toggle');
+        $csrfToken = $this->fetchToggleCsrfToken($client);
+        $client->request('POST', '/news/sources/' . $source->getId() . '/toggle', [], [], [
+            'HTTP_X_CSRF_TOKEN' => $csrfToken,
+        ]);
+        $client->request('POST', '/news/sources/' . $source->getId() . '/toggle', [], [], [
+            'HTTP_X_CSRF_TOKEN' => $csrfToken,
+        ]);
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue($data['enabled']);
+    }
+
+    private function fetchToggleCsrfToken(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client): string
+    {
+        $crawler = $client->request('GET', '/news');
+        return $crawler->filter('#source-chips')->attr('data-csrf') ?? '';
     }
 }

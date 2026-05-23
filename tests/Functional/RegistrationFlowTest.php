@@ -45,6 +45,7 @@ class RegistrationFlowTest extends WebTestCase
         $userId = $user->getId();
         $codeId = $code->getId();
 
+        $this->setPendingConfirmationSession($client, $userId);
         $crawler = $client->request('GET', "/register/confirm/{$userId}");
         $form = $crawler->selectButton('Подтвердить')->form(['code' => '999888']);
         $client->submit($form);
@@ -71,6 +72,7 @@ class RegistrationFlowTest extends WebTestCase
 
         $codeId = $code->getId();
 
+        $this->setPendingConfirmationSession($client, $user->getId());
         $crawler = $client->request('GET', "/register/confirm/{$user->getId()}");
         $form = $crawler->selectButton('Подтвердить')->form(['code' => '000000']);
         $client->submit($form);
@@ -92,6 +94,7 @@ class RegistrationFlowTest extends WebTestCase
         $em->persist($code);
         $em->flush();
 
+        $this->setPendingConfirmationSession($client, $user->getId());
         $crawler = $client->request('GET', "/register/confirm/{$user->getId()}");
         $form = $crawler->selectButton('Подтвердить')->form(['code' => '333444']);
         $client->submit($form);
@@ -108,5 +111,12 @@ class RegistrationFlowTest extends WebTestCase
         $em->persist($user);
         $em->flush();
         return $user;
+    }
+
+    private function setPendingConfirmationSession(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, int $userId): void
+    {
+        $client->request('GET', '/login');
+        $client->getRequest()->getSession()->set('pending_confirmation_user_id', $userId);
+        $client->getRequest()->getSession()->save();
     }
 }
